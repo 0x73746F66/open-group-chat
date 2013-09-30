@@ -1,0 +1,13 @@
+{
+  "name": "Open Group Chat",
+  "version": "0.2.1",
+  "description": "Chat between PC's - Nothing is logged anywhere. Ever.",
+  "main": "server.js",
+  "repository": "",
+  "author": "Chris Langton <chris@codewiz.biz>",
+  "dependencies": {
+    "async": "~0.2.8",
+    "express": "~3.2.4",
+    "socket.io": "~0.9.14"
+  }
+}
