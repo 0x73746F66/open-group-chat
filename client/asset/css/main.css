@@ -44,10 +44,10 @@
     top: 9px;
 }
 .scrollbar {
-	scrollbar-face-color: #428bca;
-	scrollbar-highlight-color: #3E950A;
+	scrollbar-face-color: #D64;
+	scrollbar-highlight-color: #956e0a;
 	scrollbar-shadow-color: #E5E5E5;
-	scrollbar-3dlight-color: #1FB50B;
+	scrollbar-3dlight-color: #bf920b;
 	scrollbar-arrow-color: #E5E5E5;
 	scrollbar-track-color: #E5E5E5;
 	scrollbar-darkshadow-color: #E5E5E5;
@@ -69,11 +69,11 @@
 .scrollbar::-webkit-scrollbar-thumb {
     -webkit-border-radius: 10px;
     border-radius: 10px;
-    background: #428bca; 
+    background: #D64; 
     -webkit-box-shadow: inset 0 0 6px #B3B3B3; 
 }
 .scrollbar::-webkit-scrollbar-thumb:window-inactive {
-	background: #6F7D80;
+	background: #d17c43;
 }
 .hide {
     display: none;
