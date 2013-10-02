@@ -1,8 +1,11 @@
 .ogc {
-    color: #08c;
+    color: #D64;
     font-variant: small-caps;
     font-size: 2em;
     line-height: 2em;
+}
+.btn {
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 .bubble {
     position: relative;

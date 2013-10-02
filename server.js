@@ -11,11 +11,12 @@ var server      = http.createServer(router);
 var io          = socketio.listen(server);
 
 // Heroku doesn't support websockets on the Cedar stack yet
+/*
 io.configure(function () {
   io.set("transports", ["xhr-polling"]); 
   io.set("polling duration", 10); 
 });
-
+*/
 
 var sockets     = [];
 var rooms       = {
@@ -124,7 +125,7 @@ io.on('connection', function (socket) {
             gid:    false,
             name:   String('Anonymous'),
             color:  String('#333'),
-            image:  String('/img/anonymous.gif'),
+            image:  String('/asset/img/anonymous.gif'),
             room:   String('lobby'),
             settings: {
                 notifications:  false,

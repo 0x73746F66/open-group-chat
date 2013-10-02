@@ -26,6 +26,7 @@ app.controller('SettingsController', function($scope) {
     });
     
 });
+
 app.controller('RoomController', function($scope) {
     $scope.room = {};
 
@@ -35,6 +36,7 @@ app.controller('RoomController', function($scope) {
         $('#newRoom').modal('hide');
     };
 });
+
 app.controller('ChatController', function($scope) {
     $scope.messages = [];
     $scope.users    = [];
