@@ -77,7 +77,7 @@ app.controller('ChatController', function($scope) {
         var roomName = $scope.editingRoom.name.toLowerCase();
         if ( $scope.rooms[roomName].id != sid ) {
             jQuery('#editRoom').modal('hide');
-            alert('you are not the owner of this room')
+            alert('you are not the owner of this room');
         } else {
             socket.emit('editRoom', $scope.editingRoom );
         }
@@ -195,7 +195,7 @@ app.controller('ChatController', function($scope) {
       data.text = data.text.replace(/(\b(https?|ftp|file):\/\/[\-A-Z0-9+&@#\/%?=~_|!:,.;]*[\-A-Z0-9+&@#\/%=~_|])/img, '<a target="_blank" href="$1">$1</a>');
       $scope.messages.push(data);
         if ( $scope.messages.length > $scope.profile.settings.messages ) {
-            $scope.messages = $scope.messages.slice(1,parseInt($scope.profile.settings.messages)+1);
+            $scope.messages = $scope.messages.slice(( $scope.messages.length - parseInt($scope.profile.settings.messages) ),$scope.messages.length);
         }
       $scope.$apply();
       $('#messages').scrollTop($('#messages').prop("scrollHeight"));
@@ -211,7 +211,7 @@ app.controller('ChatController', function($scope) {
       data.text = data.text.replace(/(\b(https?|ftp|file):\/\/[\-A-Z0-9+&@#\/%?=~_|!:,.;]*[\-A-Z0-9+&@#\/%=~_|])/img, '<a target="_blank" href="$1">$1</a>');
       $scope.messages.push(data);
         if ( $scope.messages.length > $scope.profile.settings.messages ) {
-            $scope.messages = $scope.messages.slice(1,parseInt($scope.profile.settings.messages)+1);
+            $scope.messages = $scope.messages.slice(( $scope.messages.length - parseInt($scope.profile.settings.messages) ),$scope.messages.length);
         }
       if ( ogc.notifications && $scope.profile.settings.notifications ) {
         var notify,
