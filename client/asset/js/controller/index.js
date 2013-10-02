@@ -68,9 +68,7 @@ app.controller('ChatController', function($scope) {
             jQuery('#joinRoom').modal();
             $scope.roomName = room;
         } else {
-            socket.emit('joinRoom', {
-                name: room
-            });
+            socket.emit('joinRoom', $scope.rooms[room] );
             $scope.messages = [];
         }
     };
@@ -90,10 +88,7 @@ app.controller('ChatController', function($scope) {
     };
     $scope.join = function () {
         if ($scope.rooms[$scope.roomName].password === $scope.password) {
-            socket.emit('joinRoom', {
-                name: $scope.roomName,
-                password: $scope.password
-            });
+            socket.emit('joinRoom', $scope.rooms[$scope.roomName] );
             $scope.messages = [];
             $scope.roomName = "";
             $scope.password = "";

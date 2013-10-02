@@ -107,6 +107,7 @@ io.on('connection', function (socket) {
         socket.get('profile', function (err, profile) {
             if (err) console.log(err);
             try {
+                rooms[profile.room].users.splice(rooms[profile.room].users.indexOf(profile), 1);
                 profile.gid     = gapiData.id;
                 profile.image   = gapiData.image.url;
                 preferences.get( gapiData.id, function(data) {
@@ -117,6 +118,7 @@ io.on('connection', function (socket) {
                         if (err) console.log(err);
                         updateRecords();
                         socket.emit('myProfile', profile);
+                        rooms[profile.room].users.push(profile);
                         socket.broadcast.to(profile.room).emit('roomUserLogin',profile);
                     });
                     preferences.set( gapiData.id, profile );
@@ -148,12 +150,12 @@ io.on('connection', function (socket) {
      */
     socket.on('createRoom', function (room) {
         try{ 
-            var roomName = app.camelcase(room.name);
+            var roomId = app.camelcase(room.name);
             socket.get('profile', function (err, profile) {
                 if (err) console.log(err);
-                if ( !rooms[roomName] ) {
-                    rooms[roomName] = {
-                        id:         roomName,
+                if ( !rooms[roomId] ) {
+                    rooms[roomId] = {
+                        id:         roomId,
                         name:       room.name,
                         private:    room.private,
                         password:   String( room.password || ''),
@@ -163,7 +165,7 @@ io.on('connection', function (socket) {
                         creator:    profile.gid,
                         admins:     [profile.gid]
                     };
-                    roomsDb.set( roomName, rooms[roomName]  );
+                    roomsDb.set( roomId, rooms[roomId]  );
                     io.sockets.emit('rooms', rooms);
                 } else {
                     socket.emit('info', room.name + ' exists');
@@ -175,12 +177,12 @@ io.on('connection', function (socket) {
     });
     socket.on('editRoom', function (room) {
         try{ 
-            var roomName = app.camelcase(room.name);
+            var roomId = app.camelcase(room.name);
             socket.get('profile', function (err, profile) {
                 if (err) console.log(err);
-                if (rooms[roomName].creator === profile.gid || rooms[roomName].admins.indexOf(profile.gid) >= 0 ) {
-                    rooms[roomName].private = room.private;
-                    rooms[roomName].password = room.password;
+                if (rooms[roomId].creator === profile.gid || rooms[roomId].admins.indexOf(profile.gid) >= 0 ) {
+                    rooms[roomId].private = room.private;
+                    rooms[roomId].password = room.password;
                     io.sockets.emit('rooms', rooms);
                 } else {
                     socket.emit('info','not allowed to edit ' + room.name );
@@ -194,16 +196,16 @@ io.on('connection', function (socket) {
         socket.get('profile', function(err,profile) {
             if (err) console.log(err);
             try {
-                if ( ( !rooms[room.name].private ) || ( "undefined" !== typeof room.password && rooms[room.name].password === room.password ) ) {
+                if ( ( !rooms[room.id].private ) || ( "undefined" !== typeof room.password && rooms[room.id].password === room.password ) ) {
                     rooms[profile.room].users.splice(rooms[profile.room].users.indexOf(profile), 1);
                     socket.leave(profile.room);
                     socket.broadcast.to(profile.room).emit(profile.room,'roomUserLeft',profile);
         
-                    rooms[room.name].users.push(profile);
-                    socket.join(room.name);
-                    socket.broadcast.to(room.name).emit('roomUserJoin',profile);
+                    rooms[room.id].users.push(profile);
+                    socket.join(room.id);
+                    socket.broadcast.to(room.id).emit('roomUserJoin',profile);
         
-                    profile.room = room.name;
+                    profile.room = room.id;
                     socket.emit('myProfile', profile);
                     io.sockets.emit('rooms', rooms);
                     updateRecords();
