@@ -25,12 +25,10 @@ var rooms       = {
 router.use(express.static(path.resolve(__dirname, 'client')));
 
 // Heroku doesn't support websockets on the Cedar stack yet
-/* un-comment below for Heroku
 io.configure(function () {
   io.set("transports", ["xhr-polling"]); 
   io.set("polling duration", 10); 
 });
-*/
 
 /*
  * Simple Key/Pair Database files
