@@ -35,19 +35,19 @@
                             <label class="col-lg-6 control-label">Enable Notifications</label>
                             <div toggle-switch model="settings.notifications"></div>
                         </div>
-                        <div ng-show="settings.notifications" class="ng-hide" class="form-group">
+                        <div ng-show="settings.notifications" class="ng-hide form-group">
                             <label class="col-lg-6 control-label">Announce User Leave Room</label>
                             <div toggle-switch model="settings.leave"></div>
                         </div>
-                        <div ng-show="settings.notifications" class="ng-hide" class="form-group">
+                        <div ng-show="settings.notifications" class="ng-hide form-group">
                             <label class="col-lg-6 control-label">Announce User Join Room</label>
                             <div toggle-switch model="settings.join"></div>
                         </div>
-                        <div ng-show="settings.notifications" class="ng-hide" class="form-group">
+                        <div ng-show="settings.notifications" class="ng-hide form-group">
                             <label class="col-lg-6 control-label">Announce User Login</label>
                             <div toggle-switch model="settings.login"></div>
                         </div>
-                        <div ng-show="settings.notifications" class="ng-hide" class="form-group">
+                        <div ng-show="settings.notifications" class="ng-hide form-group">
                             <label class="col-lg-6 control-label">Announce Lobby Arrivals</label>
                             <div toggle-switch model="settings.lobby"></div>
                         </div>
@@ -167,17 +167,17 @@
         </div><!-- /.modal -->
         <div class="row">
             <div class="col-md-3 well">
-                <a href="#newRoom" role="button" class="btn btn-warning" data-toggle="modal"><span class="glyphicon glyphicon-plus"></span>&nbsp;Add Room</a>
+                <a href="#newRoom" role="button" class="btn btn-warning ng-hide" data-toggle="modal" ng-show="profile.gid" ><span class="glyphicon glyphicon-plus"></span>&nbsp;Add Room</a>
                 <br>
                 <div class="panel panel-warning">
                     <div class="panel-heading">Rooms</div>
                         <div ng-repeat="room in rooms" class="panel-body">
                             <div>
-                                <button type="button" ng-click="joinRoom('{{room.name}}')" class="btn btn-xs btn-success ng-hide" title="Join Room" ng-show="profile.room.toLowerCase() != room.name.toLowerCase()" ><span class="glyphicon glyphicon-log-in"></span></button>
-                                <a href="#editRoom" ng-click="editRoom('{{room.name}}')" role="button" class="btn btn-xs btn-warning ng-hide" title="Edit Room" ng-show="profile.id == room.createdId" data-toggle="modal" ><span class="glyphicon glyphicon-cog"></span></a>
+                                <button type="button" ng-click="joinRoom('{{room.id}}')" class="btn btn-xs btn-success ng-hide" title="Join Room" ng-show="profile.room != room.id" ><span class="glyphicon glyphicon-log-in"></span></button>
+                                <a href="#editRoom" ng-click="editRoom('{{room.id}}')" role="button" class="btn btn-xs btn-warning ng-hide" title="Edit Room" ng-show="profile.gid == room.creator || room.admins.indexOf(profile.gid) >= 0" data-toggle="modal" ><span class="glyphicon glyphicon-cog"></span></a>
                                 <span ng-bind="room.name"></span>&nbsp;
                                 <span class="glyphicon glyphicon-eye-open"></span>&nbsp;
-                                <span class="badge" ng-bind="room.joined"></span>&nbsp;
+                                <span class="badge" ng-bind="room.users.length"></span>&nbsp;
                             </div>
                         </div>
                     <div class="panel-heading">Online</div>

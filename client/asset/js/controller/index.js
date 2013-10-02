@@ -64,20 +64,19 @@ app.controller('ChatController', function($scope) {
         $scope.$apply();
     });
     $scope.joinRoom = function joinRoom(room) {
-        var roomName = room.toLowerCase();
-        if ($scope.rooms[roomName].private) {
+        if ($scope.rooms[room].private) {
             jQuery('#joinRoom').modal();
-            $scope.roomName = roomName;
+            $scope.roomName = room;
         } else {
             socket.emit('joinRoom', {
-                name: roomName
+                name: room
             });
             $scope.messages = [];
         }
     };
     $scope.edit = function () {
-        var roomName = $scope.editingRoom.name.toLowerCase();
-        if ( $scope.rooms[roomName].id != sid ) {
+        var roomName = $scope.editingRoom.id;
+        if ( $scope.rooms[roomName].creator != $scope.profile.gid ) {
             jQuery('#editRoom').modal('hide');
             alert('you are not the owner of this room');
         } else {
@@ -85,10 +84,9 @@ app.controller('ChatController', function($scope) {
         }
     };
     $scope.editRoom = function editRoom(room) {
-        var roomName = room.toLowerCase();
-        $scope.editingRoom.name = room;
-        $scope.editingRoom.private = $scope.rooms[roomName].private;
-        $scope.editingRoom.password = $scope.rooms[roomName].password;
+        $scope.editingRoom.name = $scope.rooms[room].name;
+        $scope.editingRoom.private = $scope.rooms[room].private;
+        $scope.editingRoom.password = $scope.rooms[room].password;
     };
     $scope.join = function () {
         if ($scope.rooms[$scope.roomName].password === $scope.password) {
@@ -138,6 +136,20 @@ app.controller('ChatController', function($scope) {
                     iconURL = user.image,
                     title = user.name,
                     desc = "User Left Room";
+            if (navigator.mozNotification) {
+                notify = navigator.mozNotification.createNotification(title, desc, iconURL);
+            } else if (window.webkitNotifications) {
+                notify = window.webkitNotifications.createNotification(iconURL, title, desc);  
+            }
+            notify.show();
+        }
+    });
+    socket.on('roomUserLogout', function (user) {
+        if (ogc.notifications && !ogc.level && $scope.profile.settings.notifications && $scope.profile.settings.leave ) {
+            var notify,
+                    iconURL = user.image,
+                    title = user.name,
+                    desc = "User Logout";
             if (navigator.mozNotification) {
                 notify = navigator.mozNotification.createNotification(title, desc, iconURL);
             } else if (window.webkitNotifications) {

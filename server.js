@@ -1,180 +1,103 @@
 #!/bin/env node
 
 var http        = require('http');
-var path        = require('path');
 var fs          = require('fs');
+var path        = require('path');
 var async       = require('async');
 var socketio    = require('socket.io');
 var express     = require('express');
+var db          = require('./db/db');
+var preferences = new db.ns('preferences');
+var roomsDb     = new db.ns('rooms');
+var app         = require('./helpers/app');
 var router      = express();
 var server      = http.createServer(router);
 var io          = socketio.listen(server);
 
 var sockets     = [];
-var rooms       = {
-    lobby: {
-        name:       "Lobby",
-        private:    false,
-        users:      [],
-        joined:     0,
-        messages:   [],
-        created:    new Date(),
-        createdId:  null
-    }
-};
+var rooms       = {};
+fs.readdir(__dirname+'/db/rooms', function(err,files){
+    if (err) console.log(err);
+    files.forEach(function(fineName){
+        var roomName = fineName.replace('.json','');
+        roomsDb.get( roomName , function(data) {
+            rooms[roomName] = data;
+        });
+    });
+});
 router.use(express.static(path.resolve(__dirname, 'client')));
 
-// Heroku doesn't support websockets on the Cedar stack yet
+/* Heroku doesn't support websockets on the Cedar stack yet
 io.configure(function () {
   io.set("transports", ["xhr-polling"]); 
   io.set("polling duration", 10); 
-});
-
-/*
- * Simple Key/Pair Database files
- */
-var Db = function(table){
-    if ('string'!==typeof table)return;
-    this.validJsonString = function(str) {
-        try {
-            JSON.parse(str);
-        } catch (e) {
-            return false;
-        }
-        return true;
-    };
-    this.dir = table;
-    this.store = [];
-    this.update = function(id,data){
-        this.store[id] = data;
-    };
-};
-Db.fn = Db.prototype = {
-    get: function( id, callback ) {
-        var fp = './db/'+this.dir+'/'+id+'.json';
-        var self = this;
-        fs.readFile(fp, 'utf8', function (err, data) {
-            if(err) { 
-                console.log(err);
-                callback({});
-            }
-            else if ( self.validJsonString(data) ) {
-                var row = JSON.parse(data);
-                self.update(id, row);
-                callback(row);
-            }
-        });
-        return this;
-    },
-    set: function( id, data ) {
-        var fp = './db/' + this.dir + '/' + id + '.json';
-        var json = JSON.stringify(data);
-        var self = this;
-        fs.writeFile(fp, json, function (err) {
-          if(err) console.log(err);
-          self.update(id,data);
-        });
-        return this;
-    }
-};
+}); */
 
 /*
  * Broadcast an event to all users
  */
-function emitEveryone(event, data) {
-  io.sockets.emit(event,data);
-}
+function updateRecords() {
+    async.map(
+        sockets,
+        function (socket, callback) {
+            socket.get('profile', function (err, profile) {
+                if (err) console.log(err);
+                callback(null,{
+                    id:     profile.id,
+                    gid:    profile.gid,
+                    name:   profile.name,
+                    color:  profile.color,
+                    image:  profile.image,
+                    room:   profile.room
+                });
+
+            });
+        },
+        function (err, users) {
+            io.sockets.emit('users', users);
+        }
+    );
+};
 
 io.on('connection', function (socket) {
+    // emitOthers                                    socket.broadcast.emit(e,data);
     sockets.push(socket);
-    var emitOthers = function(e,data) {
-        socket.broadcast.emit(e,data);
-    };
-    var emitSelf = function(e,data) {
-        socket.emit(e,data);
-    };
-    var roomEmitOthers = function(room,e,data) {
-        socket.broadcast.to(room).emit(e,data);
-    };
-    var updateRecords = function() {
-        async.map(
-            sockets,
-            function (socket, callback) {
-                socket.get('profile', function (err, profile) {
-                    if (err) console.log(err);
-                    callback(null,{
-                        id:     profile.id,
-                        gid:    profile.gid,
-                        name:   profile.name,
-                        color:  profile.color,
-                        image:  profile.image,
-                        room:   profile.room
-                    });
+    var sid         = socket.id;
 
-                });
-            },
-            function (err, users) {
-                emitEveryone('users', users);
-            }
-        );
-    };
-    var sid = socket.id;
-    var defaultProfile = {
-            id:     sid,
-            gid:    false,
-            name:   String('Anonymous'),
-            color:  String('#333'),
-            image:  String('/asset/img/anonymous.gif'),
-            room:   String('lobby'),
-            settings: {
-                notifications:  false,
-                leave:          false,
-                join:           true,
-                login:          true,
-                lobby:          false,
-                messages:       10
-            }
-        };
-    var preferences = new Db('preferences');
-    /*
-     * Frontend Loaded
-     */
     socket.on('connect', function (profile) {
-        if (!profile.gid) {
-            socket.set('profile', defaultProfile );
-            socket.get('profile', function(err,profile) {
-                if (err) console.log(err);
-                try {
-                    rooms.lobby.users.push(profile);
-                    socket.join('lobby');
-                    rooms.lobby.joined = rooms.lobby.users.length;
-                    emitEveryone('rooms', rooms);
-                    roomEmitOthers(profile.room,'roomUserJoin',profile);
-                    emitSelf('myProfile', profile);
+        try {
+            if (profile == {} || !profile.gid) {
+                var profile = app.defaultProfile(sid);
+                socket.set('profile', profile );
+                rooms[profile.room].users.push(profile);
+                socket.join(profile.room);
+                io.sockets.emit('rooms', rooms);
+                socket.broadcast.to(profile.room).emit('roomUserJoin',profile);
+                socket.emit('myProfile', profile);
+                if(rooms[profile.room].messages) {
                     rooms[profile.room].messages.forEach(function (data) {
-                        emitSelf('message', data);
+                        socket.emit('message', data);
                     });
-                    updateRecords();
-                } catch (e) {
-                    console.log(e);
                 }
-            });
-        } else {
-            preferences.get( profile.gid, function(data) {
-                socket.set('profile', data, function (err) {
-                    if (err) console.log(err);
-                    rooms[profile.room].users.push(profile);
-                    socket.join(profile.room);
-                    rooms[profile.room].joined = rooms.lobby.users.length;
-                    emitEveryone('rooms', rooms);
-                    roomEmitOthers(profile.room,'roomUserJoin',profile);
-                    emitSelf('myProfile', profile);
-                    rooms[profile.room].messages.forEach(function (message) {
-                        emitSelf('message', message);
+                updateRecords();
+            } else if ( "undefined" !== typeof profile.gid ) {
+                preferences.get( profile.gid, function(data) {
+                    socket.set('profile', data, function (err) {
+                        if (err) console.log(err);
+                        rooms[profile.room].users.push(profile);
+                        socket.join(profile.room);
+                        io.sockets.emit('rooms', rooms);
+                        socket.broadcast.to(profile.room).emit('roomUserJoin',profile);
+                        socket.emit('myProfile', profile);
+                        rooms[profile.room].messages.forEach(function (message) {
+                            socket.emit('message', message);
+                        });
+                        updateRecords();
                     });
-                    updateRecords();
                 });
-            });
+            }
+        } catch (e) {
+            console.log(e);
         }
     });
     /*
@@ -184,8 +107,8 @@ io.on('connection', function (socket) {
         socket.get('profile', function (err, profile) {
             if (err) console.log(err);
             try {
-                profile.gid = gapiData.id;
-                profile.image = gapiData.image.url;
+                profile.gid     = gapiData.id;
+                profile.image   = gapiData.image.url;
                 preferences.get( gapiData.id, function(data) {
                     if (data.color) profile.color = data.color;
                     if (data.name) profile.name = data.name;
@@ -193,8 +116,8 @@ io.on('connection', function (socket) {
                     socket.set('profile', profile, function (err) {
                         if (err) console.log(err);
                         updateRecords();
-                        emitSelf('myProfile', profile);
-                        roomEmitOthers(profile.room,'roomUserLogin',profile);
+                        socket.emit('myProfile', profile);
+                        socket.broadcast.to(profile.room).emit('roomUserLogin',profile);
                     });
                     preferences.set( gapiData.id, profile );
                 });
@@ -212,10 +135,9 @@ io.on('connection', function (socket) {
             if (err) console.log(err);
             try{ 
                 rooms[profile.room].users.splice(rooms[profile.room].users.indexOf(profile), 1);
-                rooms[profile.room].joined = rooms[profile.room].users.length;
                 updateRecords();
-                roomEmitOthers(profile.room,'roomUserLeft',profile);
-                emitEveryone('rooms', rooms);
+                socket.broadcast.to(profile.room).emit('roomUserLogout',profile);
+                io.sockets.emit('rooms', rooms);
             } catch (e) {
                 console.log(e);
             }
@@ -225,31 +147,47 @@ io.on('connection', function (socket) {
      * Rooms
      */
     socket.on('createRoom', function (room) {
-        var lowerName = room.name.toLowerCase();
-        if (!rooms[lowerName] || rooms[lowerName].createdId === sid) {
-            rooms[lowerName] = {
-                name:       room.name,
-                private:    room.private,
-                password:   String( room.password || ''),
-                users:      [],
-                joined:     0,
-                messages:   [],
-                created:    new Date(),
-                createdId:  sid
-            };
-            emitEveryone('rooms', rooms);
-        } else if (rooms[lowerName].createdId !== sid) {
-            emitSelf('info','room exists');
+        try{ 
+            var roomName = app.camelcase(room.name);
+            socket.get('profile', function (err, profile) {
+                if (err) console.log(err);
+                if ( !rooms[roomName] ) {
+                    rooms[roomName] = {
+                        id:         roomName,
+                        name:       room.name,
+                        private:    room.private,
+                        password:   String( room.password || ''),
+                        users:      [],
+                        messages:   [],
+                        created:    new Date(),
+                        creator:    profile.gid,
+                        admins:     [profile.gid]
+                    };
+                    roomsDb.set( roomName, rooms[roomName]  );
+                    io.sockets.emit('rooms', rooms);
+                } else {
+                    socket.emit('info', room.name + ' exists');
+                }
+            });
+        } catch (e) {
+            console.log(e);
         }
     });
     socket.on('editRoom', function (room) {
-        var lowerName = room.name.toLowerCase();
-        if (rooms[lowerName].createdId === sid) {
-            rooms[lowerName].private = room.private;
-            rooms[lowerName].password = room.password;
-            emitEveryone('rooms', rooms);
-        } else if (rooms[lowerName].createdId !== sid) {
-            emitSelf('info','not allowed to edit');
+        try{ 
+            var roomName = app.camelcase(room.name);
+            socket.get('profile', function (err, profile) {
+                if (err) console.log(err);
+                if (rooms[roomName].creator === profile.gid || rooms[roomName].admins.indexOf(profile.gid) >= 0 ) {
+                    rooms[roomName].private = room.private;
+                    rooms[roomName].password = room.password;
+                    io.sockets.emit('rooms', rooms);
+                } else {
+                    socket.emit('info','not allowed to edit ' + room.name );
+                }
+            });
+        } catch (e) {
+            console.log(e);
         }
     });
     socket.on('joinRoom', function (room) {
@@ -259,23 +197,21 @@ io.on('connection', function (socket) {
                 if ( ( !rooms[room.name].private ) || ( "undefined" !== typeof room.password && rooms[room.name].password === room.password ) ) {
                     rooms[profile.room].users.splice(rooms[profile.room].users.indexOf(profile), 1);
                     socket.leave(profile.room);
-                    rooms[profile.room].joined = rooms[profile.room].users.length;
-                    roomEmitOthers(profile.room,'roomUserLeft',profile);
+                    socket.broadcast.to(profile.room).emit(profile.room,'roomUserLeft',profile);
         
                     rooms[room.name].users.push(profile);
                     socket.join(room.name);
-                    rooms[room.name].joined = rooms[room.name].users.length;
-                    roomEmitOthers(room.name,'roomUserJoin',profile);
+                    socket.broadcast.to(room.name).emit('roomUserJoin',profile);
         
                     profile.room = room.name;
-                    emitSelf('myProfile', profile);
-                    emitEveryone('rooms', rooms);
+                    socket.emit('myProfile', profile);
+                    io.sockets.emit('rooms', rooms);
                     updateRecords();
                     rooms[profile.room].messages.forEach(function (data) {
-                        emitSelf('message', data);
+                        socket.emit('message', data);
                     });
                 } else {
-                    emitSelf('info', "incorrect password");
+                    socket.emit('info', "incorrect password");
                 }
             } catch (e) {
                 console.log(e);
@@ -330,8 +266,8 @@ io.on('connection', function (socket) {
                 resp.color = profile.color;
                 resp.name  = profile.name;
                 resp.image = profile.image;
-                roomEmitOthers( profile.room , 'newMessage', resp );
-                emitSelf( 'message' , resp );
+                socket.broadcast.to(profile.room).emit('newMessage', resp );
+                socket.emit( 'message' , resp );
                 rooms[profile.room].messages.push(resp);
                 if ( rooms[profile.room].messages.length > 10 ) {
                     rooms[profile.room].messages = rooms[profile.room].messages.slice(1,11);
