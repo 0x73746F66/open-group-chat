@@ -27,11 +27,11 @@ fs.readdir(__dirname+'/db/rooms', function(err,files){
 });
 router.use(express.static(path.resolve(__dirname, 'client')));
 
-/* Heroku doesn't support websockets on the Cedar stack yet
+// Heroku doesn't support websockets on the Cedar stack yet
 io.configure(function () {
   io.set("transports", ["xhr-polling"]); 
   io.set("polling duration", 10); 
-}); */
+});
 
 /*
  * Broadcast an event to all users
