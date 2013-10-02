@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="/asset/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="/asset/css/angular-toggle-switch.css">
   </head>
-  <body class="loading">
+  <body>
     <div class="navbar navbar-default navbar-static-top navbar-inverse" role="navigation">
         <div class="navbar-inner">
             <span class="pull-left ogc"><img src="/asset/img/favicon48.png">Open Group Chat</span>
@@ -51,7 +51,7 @@
                             <label class="col-lg-6 control-label">Announce Lobby Arrivals</label>
                             <div toggle-switch model="settings.lobby"></div>
                         </div>
-                        <div ng-show="settings.notifications" class="ng-hide" class="form-group">
+                        <div class="form-group">
                             <label class="col-lg-6 control-label">Local Message History</label>
                             <input type="number" min="10" max="100" step="5" ng-model="settings.messages"> 
                         </div>

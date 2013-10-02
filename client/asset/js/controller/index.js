@@ -49,7 +49,7 @@ app.controller('ChatController', function($scope) {
     $scope.color    = '';
 
     socket.on('connect', function () {
-        socket.emit('connect', sid);
+        socket.emit('connect', $scope.profile);
     });
     
     socket.on('users', function (users) {
@@ -160,10 +160,15 @@ app.controller('ChatController', function($scope) {
             var image = document.querySelector('#gapi-image');
             image.src = profile.image;
             authorizeButton.parentNode.removeChild(authorizeButton);
+            if (jQuery('.container-fluid').hasClass('hide')) { jQuery('.container-fluid').removeClass('hide'); }
         } else {
             authorizeButton.style.visibility = '';
+            gapi.client.setApiKey('AIzaSyAa4jBJ9FXmBAPXTN8CdC934D4yyAuvr7w');
+            authorizeButton.onclick = function (e) {
+                gapi.auth.authorize({client_id: '504437119269.apps.googleusercontent.com', scope: 'https://www.googleapis.com/auth/plus.me', immediate: false}, handleAuthResult);
+                return false;
+            };
         }
-        if (jQuery('body').hasClass('loading')) { jQuery('body').removeClass('loading'); jQuery('.container-fluid').removeClass('hide'); }
     });
     $scope.setName = function setName() {
         window.clearTimeout(window.setNameInt);

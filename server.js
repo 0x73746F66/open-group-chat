@@ -10,12 +10,6 @@ var router      = express();
 var server      = http.createServer(router);
 var io          = socketio.listen(server);
 
-// Heroku doesn't support websockets on the Cedar stack yet
-io.configure(function () {
-  io.set("transports", ["xhr-polling"]); 
-  io.set("polling duration", 10); 
-});
-
 var sockets     = [];
 var rooms       = {
     lobby: {
@@ -29,6 +23,15 @@ var rooms       = {
     }
 };
 router.use(express.static(path.resolve(__dirname, 'client')));
+
+// Heroku doesn't support websockets on the Cedar stack yet
+/* un-comment below for Heroku
+io.configure(function () {
+  io.set("transports", ["xhr-polling"]); 
+  io.set("polling duration", 10); 
+});
+*/
+
 /*
  * Simple Key/Pair Database files
  */
@@ -138,25 +141,43 @@ io.on('connection', function (socket) {
     /*
      * Frontend Loaded
      */
-    socket.on('connect', function (sid) {
-        socket.set('profile', defaultProfile );
-        socket.get('profile', function(err,profile) {
-            if (err) console.log(err);
-            try {
-                rooms.lobby.users.push(profile);
-                socket.join('lobby');
-                rooms.lobby.joined = rooms.lobby.users.length;
-                emitEveryone('rooms', rooms);
-                roomEmitOthers(profile.room,'roomUserJoin',profile);
-                emitSelf('myProfile', profile);
-                rooms[profile.room].messages.forEach(function (data) {
-                    emitSelf('message', data);
+    socket.on('connect', function (profile) {
+        if (!profile.gid) {
+            socket.set('profile', defaultProfile );
+            socket.get('profile', function(err,profile) {
+                if (err) console.log(err);
+                try {
+                    rooms.lobby.users.push(profile);
+                    socket.join('lobby');
+                    rooms.lobby.joined = rooms.lobby.users.length;
+                    emitEveryone('rooms', rooms);
+                    roomEmitOthers(profile.room,'roomUserJoin',profile);
+                    emitSelf('myProfile', profile);
+                    rooms[profile.room].messages.forEach(function (data) {
+                        emitSelf('message', data);
+                    });
+                    updateRecords();
+                } catch (e) {
+                    console.log(e);
+                }
+            });
+        } else {
+            preferences.get( profile.gid, function(data) {
+                socket.set('profile', data, function (err) {
+                    if (err) console.log(err);
+                    rooms[profile.room].users.push(profile);
+                    socket.join(profile.room);
+                    rooms[profile.room].joined = rooms.lobby.users.length;
+                    emitEveryone('rooms', rooms);
+                    roomEmitOthers(profile.room,'roomUserJoin',profile);
+                    emitSelf('myProfile', profile);
+                    rooms[profile.room].messages.forEach(function (message) {
+                        emitSelf('message', message);
+                    });
+                    updateRecords();
                 });
-            } catch (e) {
-                console.log(e);
-            }
-        });
-        updateRecords();
+            });
+        }
     });
     /*
      * Google Login

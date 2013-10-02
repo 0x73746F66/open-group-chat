@@ -78,6 +78,7 @@
 .hide {
     display: none;
 }
+/*
 .loading {
     background: url(../img/loading.jpg) no-repeat center center fixed; 
     -webkit-background-size: cover;
@@ -85,6 +86,8 @@
     -o-background-size: cover;
     background-size: cover;
 }
+*/
+
 /* Smartphones (portrait and landscape) ----------- */
 @media only screen 
 and (min-device-width : 320px) 
