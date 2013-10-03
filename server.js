@@ -74,6 +74,7 @@ io.on('connection', function (socket) {
                 io.sockets.emit('rooms', rooms);
                 socket.broadcast.to(profile.room).emit('roomUserJoin',profile);
                 socket.emit('myProfile', profile);
+                socket.emit('checkLogin', {});
                 if(rooms[profile.room].messages) {
                     rooms[profile.room].messages.forEach(function (data) {
                         socket.emit('message', data);
@@ -118,6 +119,7 @@ io.on('connection', function (socket) {
                         if (err) console.log(err);
                         updateRecords();
                         socket.emit('myProfile', profile);
+                        socket.emit('login', profile);
                         rooms[profile.room].users.push(profile);
                         socket.broadcast.to(profile.room).emit('roomUserLogin',profile);
                     });

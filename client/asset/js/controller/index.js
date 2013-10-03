@@ -56,6 +56,35 @@ app.controller('ChatController', function($scope) {
         $scope.users = users;
         $scope.$apply();
     });
+
+    socket.on('checkLogin', function (data) {
+        var authorizeButton = document.getElementById('authorize-button');
+        if (authorizeButton) {
+            authorizeButton.style.visibility = '';
+            gapi.client.setApiKey('AIzaSyAa4jBJ9FXmBAPXTN8CdC934D4yyAuvr7w');
+            authorizeButton.onclick = function (e) {
+                gapi.auth.authorize({client_id: '504437119269.apps.googleusercontent.com', scope: 'https://www.googleapis.com/auth/plus.me', immediate: false}, handleAuthResult);
+                return false;
+            };
+        }
+    });
+
+    socket.on('login', function (profile) {
+        var logo = document.getElementById('ogc-logo');
+        var authorizeButton = document.getElementById('authorize-button');
+        if (authorizeButton && profile.gid) {
+            var image = document.querySelector('#gapi-image');
+            image.src = profile.image;
+            authorizeButton.parentNode.removeChild(authorizeButton);
+            if (jQuery('.container-fluid').hasClass('hide')) { jQuery('.container-fluid').removeClass('hide'); }
+            if (jQuery('#navbar').hasClass('hide')) { jQuery('#navbar').removeClass('hide'); }
+            logo.parentNode.removeChild(logo);
+            $('body').removeClass('background');
+        } else {
+            authorizeButton.style.visibility = '';
+        }
+    });
+
     /*
      * Rooms
      */
@@ -162,20 +191,6 @@ app.controller('ChatController', function($scope) {
         $scope.room         = profile.room;
         $scope.profile      = profile;
         $scope.$apply();
-        var authorizeButton = document.getElementById('authorize-button');
-        if (authorizeButton && profile.gid) {
-            var image = document.querySelector('#gapi-image');
-            image.src = profile.image;
-            authorizeButton.parentNode.removeChild(authorizeButton);
-            if (jQuery('.container-fluid').hasClass('hide')) { jQuery('.container-fluid').removeClass('hide'); }
-        } else {
-            authorizeButton.style.visibility = '';
-            gapi.client.setApiKey('AIzaSyAa4jBJ9FXmBAPXTN8CdC934D4yyAuvr7w');
-            authorizeButton.onclick = function (e) {
-                gapi.auth.authorize({client_id: '504437119269.apps.googleusercontent.com', scope: 'https://www.googleapis.com/auth/plus.me', immediate: false}, handleAuthResult);
-                return false;
-            };
-        }
     });
     $scope.setName = function setName() {
         window.clearTimeout(window.setNameInt);

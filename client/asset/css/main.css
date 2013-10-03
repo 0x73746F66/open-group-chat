@@ -1,8 +1,27 @@
+.background {
+    background: no-repeat scroll center 40% #303030;
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: -1;
+    /*
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    */
+}
 .ogc {
     color: #D64;
     font-variant: small-caps;
     font-size: 2em;
     line-height: 2em;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+}
+.img-responsive {
+    margin: 0 auto;
 }
 .btn {
     -webkit-tap-highlight-color: rgba(0,0,0,0);
@@ -78,15 +97,6 @@
 .hide {
     display: none;
 }
-/*
-.loading {
-    background: url(../img/loading.jpg) no-repeat center center fixed; 
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: cover;
-}
-*/
 
 /* Smartphones (portrait and landscape) ----------- */
 @media only screen 

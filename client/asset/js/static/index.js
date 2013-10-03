@@ -41,7 +41,7 @@ $(document).ready(function() {
     }
 
     jQuery( 'textarea[ng-model="text"]' ).bind('keypress', function(e){
-        if ( e.keyCode == 13 ) {
+        if ( !e.shiftKey && e.keyCode == 13 && jQuery(this).val().length > 2 ) {
             e.preventDefault();
             jQuery(this).submit();
         }
