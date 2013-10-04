@@ -22,7 +22,7 @@ app.controller('SettingsController', function($scope) {
     };
     
     $scope.$watch('settings.notifications', function() {
-        if ( $scope.settings.notifications === false && "undefined" !== typeof ogc && "undefined" !== typeof ogc.level && ogc.level === 1 ) ogc.notifications.requestPermission();
+        if ( $scope.settings.notifications !== false && "undefined" !== typeof ogc && "undefined" !== typeof ogc.level && ogc.level === 1 ) ogc.notifications.requestPermission();
     });
     
 });
@@ -111,9 +111,7 @@ app.controller('ChatController', function($scope) {
         }
     };
     $scope.editRoom = function editRoom(room) {
-        $scope.editingRoom.name = $scope.rooms[room].name;
-        $scope.editingRoom.private = $scope.rooms[room].private;
-        $scope.editingRoom.password = $scope.rooms[room].password;
+        $scope.editingRoom = $scope.rooms[room];
     };
     $scope.join = function () {
         if ($scope.rooms[$scope.roomName].password === $scope.password) {
@@ -125,6 +123,12 @@ app.controller('ChatController', function($scope) {
         } else {
             alert('incorrect password');
         }
+    };
+    $scope.makeAdmin = function (room,gid) {
+        socket.emit('makeAdmin', {room:room,gid:gid} );
+    };
+    $scope.revokeAdmin = function (room,gid) {
+        socket.emit('revokeAdmin', {room:room,gid:gid} );
     };
     socket.on('roomUserJoin', function (user) {
         if ( ( "lobby" !== $scope.profile.room && ogc.notifications && $scope.profile.settings.notifications && $scope.profile.settings.join ) || ( "lobby" === $scope.profile.room && ogc.notifications && $scope.profile.settings.notifications && $scope.profile.settings.join && $scope.profile.settings.lobby  ) ) {
@@ -192,15 +196,6 @@ app.controller('ChatController', function($scope) {
         $scope.profile      = profile;
         $scope.$apply();
     });
-    $scope.setName = function setName() {
-        window.clearTimeout(window.setNameInt);
-        window.setNameInt = window.setTimeout(function(){
-            socket.emit('updateName', $scope.name);
-        },1000);
-    };
-    $scope.setColor = function setColor() {
-        socket.emit('updateColor', $scope.color);
-    };
      /*
      * Send Message
      */

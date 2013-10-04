@@ -27,11 +27,11 @@ fs.readdir(__dirname+'/db/rooms', function(err,files){
 });
 router.use(express.static(path.resolve(__dirname, 'client')));
 
-// Heroku doesn't support websockets on the Cedar stack yet
+/* Heroku doesn't support websockets on the Cedar stack yet
 io.configure(function () {
   io.set("transports", ["xhr-polling"]); 
   io.set("polling duration", 10); 
-});
+}); */
 
 /*
  * Broadcast an event to all users
@@ -117,11 +117,12 @@ io.on('connection', function (socket) {
                     if (data.settings) profile.settings = data.settings;
                     socket.set('profile', profile, function (err) {
                         if (err) console.log(err);
-                        updateRecords();
                         socket.emit('myProfile', profile);
                         socket.emit('login', profile);
                         rooms[profile.room].users.push(profile);
                         socket.broadcast.to(profile.room).emit('roomUserLogin',profile);
+                        io.sockets.emit('rooms', rooms);
+                        updateRecords();
                     });
                     preferences.set( gapiData.id, profile );
                 });
@@ -194,6 +195,22 @@ io.on('connection', function (socket) {
             console.log(e);
         }
     });
+    socket.on('revokeAdmin', function (data) {
+        try{
+            rooms[data.room].admins.splice(rooms[data.room].admins.indexOf(data.gid), 1);
+            io.sockets.emit('rooms', rooms);
+        } catch (e) {
+            console.log(e);
+        }
+    });
+    socket.on('makeAdmin', function (data) {
+        try{
+            rooms[data.room].admins.push(data.gid);
+            io.sockets.emit('rooms', rooms);
+        } catch (e) {
+            console.log(e);
+        }
+    });
     socket.on('joinRoom', function (room) {
         socket.get('profile', function(err,profile) {
             if (err) console.log(err);
@@ -228,28 +245,9 @@ io.on('connection', function (socket) {
     socket.on('saveSettings', function (settings) {
         socket.get('profile', function(err,profile) {
             if (err) console.log(err);
+            profile.color = settings.color;
+            profile.name = settings.name;
             profile.settings = settings;
-            socket.set('profile', profile, function (err) {
-                if (err) console.log(err);
-            });
-            if (profile.gid) preferences.set( profile.gid, profile );
-        });
-    });
-    socket.on('updateName', function (name) {
-        socket.get('profile', function(err,profile) {
-            if (err) console.log(err);
-            profile.name = name;
-            socket.set('profile', profile, function (err) {
-                if (err) console.log(err);
-                updateRecords();
-            });
-            if (profile.gid) preferences.set( profile.gid, profile );
-        });
-    });
-    socket.on('updateColor', function (color) {
-        socket.get('profile', function(err,profile) {
-            if (err) console.log(err);
-            profile.color = color;
             socket.set('profile', profile, function (err) {
                 if (err) console.log(err);
                 updateRecords();
