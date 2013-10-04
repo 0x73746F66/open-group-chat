@@ -69,18 +69,18 @@ io.on('connection', function (socket) {
             if (profile == {} || !profile.gid) {
                 var profile = app.defaultProfile(sid);
                 socket.set('profile', profile );
-                rooms[profile.room].users.push(profile);
-                socket.join(profile.room);
-                io.sockets.emit('rooms', rooms);
-                socket.broadcast.to(profile.room).emit('roomUserJoin',profile);
-                socket.emit('myProfile', profile);
+                //rooms[profile.room].users.push(profile);
+                //socket.join(profile.room);
+                //io.sockets.emit('rooms', rooms);
+                //socket.broadcast.to(profile.room).emit('roomUserJoin',profile);
+                //socket.emit('myProfile', profile);
                 socket.emit('checkLogin', {});
-                if(rooms[profile.room].messages) {
-                    rooms[profile.room].messages.forEach(function (data) {
-                        socket.emit('message', data);
-                    });
-                }
-                updateRecords();
+                //if(rooms[profile.room].messages) {
+                //    rooms[profile.room].messages.forEach(function (data) {
+                //        socket.emit('message', data);
+                //    });
+                //}
+                //updateRecords();
             } else if ( profile.gid ) {
                 preferences.get( profile.gid, function(data) {
                     socket.set('profile', data, function (err) {
@@ -115,7 +115,7 @@ io.on('connection', function (socket) {
                     if (data.color) profile.color = data.color;
                     if (data.name) profile.name = data.name;
                     if (data.settings) profile.settings = data.settings;
-                    if (data.room != profile.room) {
+                    if (data.room && data.room != profile.room) {
                         socket.leave(profile.room);
                         socket.join(data.room);
                         profile.room = data.room;
