@@ -69,18 +69,7 @@ io.on('connection', function (socket) {
             if (profile == {} || !profile.gid) {
                 var profile = app.defaultProfile(sid);
                 socket.set('profile', profile );
-                //rooms[profile.room].users.push(profile);
-                //socket.join(profile.room);
-                //io.sockets.emit('rooms', rooms);
-                //socket.broadcast.to(profile.room).emit('roomUserJoin',profile);
-                //socket.emit('myProfile', profile);
                 socket.emit('checkLogin', {});
-                //if(rooms[profile.room].messages) {
-                //    rooms[profile.room].messages.forEach(function (data) {
-                //        socket.emit('message', data);
-                //    });
-                //}
-                //updateRecords();
             } else if ( profile.gid ) {
                 preferences.get( profile.gid, function(data) {
                     socket.set('profile', data, function (err) {
@@ -337,7 +326,7 @@ io.on('connection', function (socket) {
     });
 
 });
-server.listen(process.env.PORT || 80, process.env.IP || "0.0.0.0", function(){
+server.listen(process.env.OPENSHIFT_NODEJS_PORT || 80, process.env.OPENSHIFT_NODEJS_IP || "0.0.0.0", function(){
   var addr = server.address();
   console.log("Chat server listening at", addr.address + ":" + addr.port);
 });
