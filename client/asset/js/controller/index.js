@@ -90,6 +90,7 @@ app.controller('ChatController', function($scope) {
      */
     socket.on('rooms', function (rooms) {
         $scope.rooms = rooms;
+        if ( $scope.editingRoom.id ) $scope.editingRoom = rooms[$scope.editingRoom.id];
         $scope.$apply();
     });
     $scope.joinRoom = function joinRoom(room) {
@@ -102,12 +103,11 @@ app.controller('ChatController', function($scope) {
         }
     };
     $scope.edit = function () {
-        var roomName = $scope.editingRoom.id;
-        if ( $scope.rooms[roomName].creator != $scope.profile.gid ) {
-            jQuery('#editRoom').modal('hide');
-            alert('you are not the owner of this room');
-        } else {
+        if ( $scope.rooms[$scope.editingRoom.id].creator == $scope.profile.gid || $scope.rooms[$scope.editingRoom.id].admins.indexOf($scope.profile.gid) >= 0 ) {
             socket.emit('editRoom', $scope.editingRoom );
+        } else {
+            jQuery('#editRoom').modal('hide');
+            alert('permission denied');
         }
     };
     $scope.editRoom = function editRoom(room) {

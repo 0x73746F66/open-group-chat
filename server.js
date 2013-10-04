@@ -27,11 +27,11 @@ fs.readdir(__dirname+'/db/rooms', function(err,files){
 });
 router.use(express.static(path.resolve(__dirname, 'client')));
 
-/* Heroku doesn't support websockets on the Cedar stack yet
+// Heroku doesn't support websockets on the Cedar stack yet
 io.configure(function () {
   io.set("transports", ["xhr-polling"]); 
   io.set("polling duration", 10); 
-}); */
+});
 
 /*
  * Broadcast an event to all users
@@ -81,7 +81,7 @@ io.on('connection', function (socket) {
                     });
                 }
                 updateRecords();
-            } else if ( "undefined" !== typeof profile.gid ) {
+            } else if ( profile.gid ) {
                 preferences.get( profile.gid, function(data) {
                     socket.set('profile', data, function (err) {
                         if (err) console.log(err);
@@ -115,6 +115,11 @@ io.on('connection', function (socket) {
                     if (data.color) profile.color = data.color;
                     if (data.name) profile.name = data.name;
                     if (data.settings) profile.settings = data.settings;
+                    if (data.room != profile.room) {
+                        socket.leave(profile.room);
+                        socket.join(data.room);
+                        profile.room = data.room;
+                    }
                     socket.set('profile', profile, function (err) {
                         if (err) console.log(err);
                         socket.emit('myProfile', profile);
@@ -193,7 +198,7 @@ io.on('connection', function (socket) {
                         roomsDb.set( roomId , data );
                     });
                 } else {
-                    socket.emit('info','not allowed to edit ' + room.name );
+                    socket.emit('info','permission denied' );
                 }
             });
         } catch (e) {
@@ -293,11 +298,14 @@ io.on('connection', function (socket) {
     socket.on('saveSettings', function (settings) {
         socket.get('profile', function(err,profile) {
             if (err) console.log(err);
+            rooms[profile.room].users.splice(rooms[profile.room].users.indexOf(profile), 1);
             profile.color = settings.color;
             profile.name = settings.name;
             profile.settings = settings;
             socket.set('profile', profile, function (err) {
                 if (err) console.log(err);
+                rooms[profile.room].users.push(profile);
+                io.sockets.emit('rooms', rooms);
                 updateRecords();
             });
             if (profile.gid) preferences.set( profile.gid, profile );

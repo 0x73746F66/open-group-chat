@@ -39,23 +39,35 @@ $(document).ready(function() {
     if (ogc.notifications) {
         ogc.level = ogc.notifications.checkPermission();
     }
-
-    jQuery( 'textarea[ng-model="text"]' ).bind('keypress', function(e){
-        if ( !e.shiftKey && e.keyCode == 13 && jQuery(this).val().length > 2 ) {
-            e.preventDefault();
-            jQuery(this).submit();
-        }
+    
+    jQuery('textarea , input:not([type="hidden"])').each(function(){
+        var self = this;
+        jQuery(self).bind('keypress', function(e){
+            if ( !e.shiftKey && e.keyCode == 13 && jQuery(this).val().length > 2 ) {
+                e.preventDefault();
+                jQuery(this).submit();
+            }
+        });
+    });
+    
+    jQuery('[toggle-button]').each(function(){
+        var self = this;
+        jQuery(self).on('click',function(e){
+            jQuery('#'+$(this).attr('toggle-button')).toggle();
+            jQuery(this).find('[toggle-text]').html() == "Show" ? jQuery(this).find('[toggle-text]').html('Hide') : jQuery(this).find('[toggle-text]').html('Show');
+            jQuery(this).find('[toggle-icon]').hasClass('glyphicon-chevron-left') ? jQuery(this).find('[toggle-icon]').removeClass('glyphicon-chevron-left').addClass('glyphicon-chevron-down') : jQuery(this).find('[toggle-icon]').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-left');
+        });
     });
 
-    $(window).resize(function() {
+    jQuery(window).resize(function() {
         if ($(window).width()>=975) {
-            $('.noScroll').each(function(){
-                $(this).removeClass('noScroll').addClass('scrollbar');
+            jQuery('.noScroll').each(function(){
+                jQuery(this).removeClass('noScroll').addClass('scrollbar');
             });
         }
         else {
-            $('.scrollbar').each(function(){
-                $(this).removeClass('scrollbar').addClass('noScroll');
+            jQuery('.scrollbar').each(function(){
+                jQuery(this).removeClass('scrollbar').addClass('noScroll');
             });
         }
     });
