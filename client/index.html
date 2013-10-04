@@ -230,13 +230,16 @@
                             <button type="button" class="btn btn-danger" ng-click="edit()" data-dismiss="modal">Edit Room</button>
                         </div>
                     </form>
-                    <div class="panel panel-danger">
+                    <div class="panel panel-danger ng-hide" ng-show="editingRoom.admins.indexOf(profile.gid) >= 0 || editingRoom.creator == profile.gid">
                         <div class="panel-heading">Users</div>
                         <div ng-repeat="user in editingRoom.users" class="panel-body">
                             <img ng-src="{{user.image}}" class="img-circle">&nbsp;
                             <span ng-bind="user.name" style="color:{{user.color}};"></span>&nbsp;
-                            <button type="button" role="button" class="btn btn-danger ng-hide" ng-click="makeAdmin('{{editingRoom.id}}','{{user.gid}}')" ng-show="user.gid && user.gid != profile.gid && editingRoom.admins.indexOf(profile.gid) >= 0" title="Make Group Admin" ><span class="glyphicon glyphicon-arrow-up"></span>&nbsp;</button>&nbsp;
-                            <button type="button" role="button" class="btn btn-warning ng-hide" ng-click="revokeAdmin('{{editingRoom.id}}','{{user.gid}}')" ng-show="user.gid && user.gid != profile.gid && editingRoom.admins.indexOf(profile.gid) >= 0" title="Revoke Group Admin" ><span class="glyphicon glyphicon-arrow-down"></span>&nbsp;</button>
+                            <span class="ng-hide" ng-show="user.gid && user.gid != profile.gid && editingRoom.creator != user.gid">
+                                <button type="button" role="button" class="btn btn-default ng-hide" ng-show="editingRoom.id != 'Lobby'" ng-click="kick('{{editingRoom.id}}','{{user.id}}')" title="Kick User" ><span class="glyphicon glyphicon-trash"></span></button>&nbsp;
+                                <button type="button" role="button" class="btn btn-danger ng-hide" ng-click="makeAdmin('{{editingRoom.id}}','{{user.gid}}')" ng-show="editingRoom.admins.indexOf(user.gid) < 0" title="Make Group Admin" ><span class="glyphicon glyphicon-tower"></span></button>&nbsp;
+                                <button type="button" role="button" class="btn btn-warning ng-hide" ng-click="revokeAdmin('{{editingRoom.id}}','{{user.gid}}')" ng-show="editingRoom.admins.indexOf(user.gid) >= 0" title="Revoke Group Admin" ><span class="glyphicon glyphicon-thumbs-down"></span></button>
+                            </span>
                         </div>
                     </div>
                 </div><!-- /.modal-content -->
@@ -259,7 +262,8 @@
                     <div class="panel-heading">Online In {{rooms[profile.room].name}}</div>
                     <div ng-repeat="user in rooms[profile.room].users" class="panel-body">
                         <img ng-src="{{user.image}}" class="img-circle">&nbsp;
-                        <span ng-bind="user.name" style="color:{{user.color}};"></span>
+                        <span ng-bind="user.name" style="color:{{user.color}};"></span>&nbsp;
+                        <button type="button" role="button" class="btn btn-default ng-hide" ng-show="rooms[profile.room].id != 'Lobby' && user.gid && user.gid != profile.gid && rooms[profile.room].creator != user.gid && ( rooms[profile.room].admins.indexOf(profile.gid) >= 0 || rooms[profile.room].creator == profile.gid )" ng-click="kick('{{rooms[user.room].id}}','{{user.id}}')" title="Kick User" ><span class="glyphicon glyphicon-trash"></span></button>
                     </div>
                 </div>
             </div>

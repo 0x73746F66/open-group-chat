@@ -130,6 +130,9 @@ app.controller('ChatController', function($scope) {
     $scope.revokeAdmin = function (room,gid) {
         socket.emit('revokeAdmin', {room:room,gid:gid} );
     };
+    $scope.kick = function (room,id) {
+        socket.emit('kick', {room:room,sid:id} );
+    };
     socket.on('roomUserJoin', function (user) {
         if ( ( "lobby" !== $scope.profile.room && ogc.notifications && $scope.profile.settings.notifications && $scope.profile.settings.join ) || ( "lobby" === $scope.profile.room && ogc.notifications && $scope.profile.settings.notifications && $scope.profile.settings.join && $scope.profile.settings.lobby  ) ) {
             var notify,

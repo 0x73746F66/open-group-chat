@@ -187,6 +187,11 @@ io.on('connection', function (socket) {
                     rooms[roomId].private = room.private;
                     rooms[roomId].password = room.password;
                     io.sockets.emit('rooms', rooms);
+                    roomsDb.get( roomId , function(data) {
+                        data.private = rooms[roomId].private;
+                        data.password = rooms[roomId].password;
+                        roomsDb.set( roomId , data );
+                    });
                 } else {
                     socket.emit('info','not allowed to edit ' + room.name );
                 }
@@ -199,6 +204,10 @@ io.on('connection', function (socket) {
         try{
             rooms[data.room].admins.splice(rooms[data.room].admins.indexOf(data.gid), 1);
             io.sockets.emit('rooms', rooms);
+            roomsDb.get( data.room , function(room) {
+                room.admins = rooms[data.room].admins;
+                roomsDb.set( data.room , room );
+            });
         } catch (e) {
             console.log(e);
         }
@@ -207,6 +216,41 @@ io.on('connection', function (socket) {
         try{
             rooms[data.room].admins.push(data.gid);
             io.sockets.emit('rooms', rooms);
+            roomsDb.get( data.room , function(room) {
+                room.admins = rooms[data.room].admins;
+                roomsDb.set( data.room , room );
+            });
+        } catch (e) {
+            console.log(e);
+        }
+    });
+    socket.on('kick', function (data) {
+        try{
+            sockets.forEach(function(socketTemp){
+                socketTemp.get('profile', function (err, profileTemp) {
+                    if (err) console.log(err);
+                    if ( profileTemp.id == data.sid ) {
+                        rooms[data.room].users.splice(rooms[data.room].users.indexOf(profileTemp), 1);
+                        socketTemp.leave(data.room);
+                        socketTemp.broadcast.to(data.room).emit(data.room,'roomUserLeft',profileTemp);
+            
+                        rooms['Lobby'].users.push(profileTemp);
+                        socketTemp.join('Lobby');
+                        socketTemp.broadcast.to('Lobby').emit('roomUserJoin',profileTemp);
+            
+                        profileTemp.room = "Lobby";
+                        socketTemp.emit('myProfile', profileTemp);
+                        io.sockets.emit('rooms', rooms);
+                        rooms['Lobby'].messages.forEach(function (message) {
+                            socketTemp.emit('message', message);
+                        });
+                        socketTemp.set('profile', profileTemp, function (err) {
+                            if (err) console.log(err);
+                            updateRecords();
+                        });
+                    }
+                });
+            });
         } catch (e) {
             console.log(e);
         }
@@ -230,6 +274,10 @@ io.on('connection', function (socket) {
                     updateRecords();
                     rooms[profile.room].messages.forEach(function (data) {
                         socket.emit('message', data);
+                    });
+                    socket.set('profile', profile, function (err) {
+                        if (err) console.log(err);
+                        updateRecords();
                     });
                 } else {
                     socket.emit('info', "incorrect password");
