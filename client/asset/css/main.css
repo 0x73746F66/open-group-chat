@@ -1,3 +1,6 @@
+[contentEditable] {
+    cursor: pointer;
+}
 .background {
     background: no-repeat scroll center 40% #303030;
     bottom: 0;
