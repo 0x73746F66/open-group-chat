@@ -3,7 +3,6 @@ var app         = angular.module('OpenGroupChat', ['toggle-switch']).config(func
     $sceProvider.enabled(false);
 });
 var socket      = window.socket;
-var sid         = socket.id;
 
 socket.on('info', function (message) {
     alert(message);
@@ -39,15 +38,17 @@ app.controller('RoomController', function($scope) {
 
 app.controller('ChatController', function($scope) {
     $scope.messages = [];
-    $scope.users    = [];
+    $scope.users    = {};
     $scope.rooms    = [];
     $scope.profile  = {};
     $scope.editingRoom = {};
     $scope.name     = '';
+    $scope.url     = '';
     $scope.text     = '';
     $scope.time     = '';
     $scope.color    = '';
-
+    $scope.roomName = "";
+    
     socket.on('connect', function () {
         socket.emit('connect', $scope.profile);
     });
@@ -131,9 +132,10 @@ app.controller('ChatController', function($scope) {
         socket.emit('revokeAdmin', {room:room,gid:gid} );
     };
     $scope.kick = function (room,id) {
-        socket.emit('kick', {room:room,sid:id} );
+        socket.emit('kick', {room:room,id:id} );
     };
-    socket.on('roomUserJoin', function (user) {
+    socket.on('roomUserJoin', function (gid) {
+        var user = $scope.users[gid];
         if ( ( "lobby" !== $scope.profile.room && ogc.notifications && $scope.profile.settings.notifications && $scope.profile.settings.join ) || ( "lobby" === $scope.profile.room && ogc.notifications && $scope.profile.settings.notifications && $scope.profile.settings.join && $scope.profile.settings.lobby  ) ) {
             var notify,
                     iconURL = user.image,
@@ -194,6 +196,7 @@ app.controller('ChatController', function($scope) {
      */
     socket.on('myProfile', function (profile) {
         $scope.name         = profile.name;
+        $scope.url          = profile.url;
         $scope.color        = profile.color;
         $scope.room         = profile.room;
         $scope.profile      = profile;

@@ -1,6 +1,6 @@
 {
   "name": "Open-Group-Chat",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "Chat between PC's Openly - Nothing is logged anywhere. Ever.",
   "main": "server.js",
   "repository": { 

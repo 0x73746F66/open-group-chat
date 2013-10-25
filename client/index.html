@@ -84,6 +84,15 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-lg-6 control-label">Your Profile Url</label>
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    Url
+                                </span>
+                                <input type="url" ng-model="settings.url" placeholder="http://example.com" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="col-lg-6 control-label">Message Text</label>
                             <div class="input-group">
                                 <span class="input-group-addon">
@@ -236,7 +245,7 @@
                             <img ng-src="{{user.image}}" class="img-circle">&nbsp;
                             <span ng-bind="user.name" style="color:{{user.color}};"></span>&nbsp;
                             <span class="ng-hide" ng-show="user.gid && user.gid != profile.gid && editingRoom.creator != user.gid">
-                                <button type="button" role="button" class="btn btn-default ng-hide" ng-show="editingRoom.id != 'Lobby'" ng-click="kick('{{editingRoom.id}}','{{user.id}}')" title="Kick User" ><span class="glyphicon glyphicon-trash"></span></button>&nbsp;
+                                <button type="button" role="button" class="btn btn-default ng-hide" ng-show="editingRoom.id != 'Lobby'" ng-click="kick('{{editingRoom.id}}','{{user.gid}}')" title="Kick User" ><span class="glyphicon glyphicon-trash"></span></button>&nbsp;
                                 <button type="button" role="button" class="btn btn-danger ng-hide" ng-click="makeAdmin('{{editingRoom.id}}','{{user.gid}}')" ng-show="editingRoom.admins.indexOf(user.gid) < 0" title="Make Group Admin" ><span class="glyphicon glyphicon-tower"></span></button>
                                 <button type="button" role="button" class="btn btn-warning ng-hide" ng-click="revokeAdmin('{{editingRoom.id}}','{{user.gid}}')" ng-show="editingRoom.admins.indexOf(user.gid) >= 0" title="Revoke Group Admin" ><span class="glyphicon glyphicon-thumbs-down"></span></button>
                             </span>
@@ -269,8 +278,8 @@
                     <div id="in-room">
                         <div ng-repeat="user in rooms[profile.room].users">
                             <img ng-src="{{user.image}}" class="img-circle">&nbsp;
-                            <span ng-bind="user.name" style="color:{{user.color}};"></span>&nbsp;
-                            <button type="button" role="button" class="btn btn-default ng-hide" ng-show="rooms[profile.room].id != 'Lobby' && user.gid && user.gid != profile.gid && rooms[profile.room].creator != user.gid && ( rooms[profile.room].admins.indexOf(profile.gid) >= 0 || rooms[profile.room].creator == profile.gid )" ng-click="kick('{{rooms[user.room].id}}','{{user.id}}')" title="Kick User" ><span class="glyphicon glyphicon-trash"></span></button>
+                            <a href="" ng-href="{{user.url}}" target="_blank" ><span ng-bind="user.name" style="color:{{user.color}};"></span></a>&nbsp;
+                            <button type="button" role="button" class="btn btn-default ng-hide" ng-show="rooms[profile.room].id != 'Lobby' && user.gid && user.gid != profile.gid && rooms[profile.room].creator != user.gid && ( rooms[profile.room].admins.indexOf(profile.gid) >= 0 || rooms[profile.room].creator == profile.gid )" ng-click="kick('{{rooms[user.room].id}}','{{user.gid}}')" title="Kick User" ><span class="glyphicon glyphicon-trash"></span></button>
                         </div>
                     </div>
                 </div>
@@ -291,6 +300,7 @@
                     <textarea rows="6" ng-model="text" placeholder="Message" class="form-control"></textarea>
                     <button type="submit" ng-disabled="text.length < 3" class="btn btn-danger"><span class="glyphicon glyphicon-share-alt"></span>&nbsp;Share</button>
                     <input type="hidden" value="" ng-model="name">
+                    <input type="hidden" value="" ng-model="url">
                     <input type="hidden" value="" ng-model="color">
                     <input type="hidden" value="" ng-model="image">
                 </form>
@@ -300,7 +310,7 @@
                     <div id="online">
                         <div ng-repeat="user in users">
                             <img ng-src="{{user.image}}" class="img-circle">&nbsp;
-                            <span ng-bind="user.name" style="color:{{user.color}};"></span>&nbsp;
+                            <a href="" ng-href="{{user.url}}" target="_blank" ><span ng-bind="user.name" style="color:{{user.color}};"></span></a>&nbsp;
                             <span class="glyphicon glyphicon-bullhorn"></span>&nbsp;{{rooms[user.room].name}}&nbsp;
                             <button type="button" ng-click="joinRoom('{{user.room}}')" class="btn btn-xs btn-danger ng-hide" title="Join Room" ng-show="profile.room != user.room" ><span class="glyphicon glyphicon-log-in"></span></button>
                         </div>

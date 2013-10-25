@@ -42,15 +42,7 @@ function updateRecords() {
         function (socket, callback) {
             socket.get('profile', function (err, profile) {
                 if (err) console.log(err);
-                callback(null,{
-                    id:     profile.id,
-                    gid:    profile.gid,
-                    name:   profile.name,
-                    color:  profile.color,
-                    image:  profile.image,
-                    room:   profile.room
-                });
-
+                callback(null,profile);
             });
         },
         function (err, users) {
@@ -62,12 +54,10 @@ function updateRecords() {
 io.on('connection', function (socket) {
     // emitOthers                                    socket.broadcast.emit(e,data);
     sockets.push(socket);
-    var sid         = socket.id;
-
     socket.on('connect', function (profile) {
         try {
             if (profile == {} || !profile.gid) {
-                var profile = app.defaultProfile(sid);
+                var profile = app.defaultProfile();
                 socket.set('profile', profile );
                 socket.emit('checkLogin', {});
             } else if ( profile.gid ) {
@@ -226,7 +216,7 @@ io.on('connection', function (socket) {
             sockets.forEach(function(socketTemp){
                 socketTemp.get('profile', function (err, profileTemp) {
                     if (err) console.log(err);
-                    if ( profileTemp.id == data.sid ) {
+                    if ( profileTemp.gid == data.gid ) {
                         rooms[data.room].users.splice(rooms[data.room].users.indexOf(profileTemp), 1);
                         socketTemp.leave(data.room);
                         socketTemp.broadcast.to(data.room).emit(data.room,'roomUserLeft',profileTemp);
@@ -293,6 +283,7 @@ io.on('connection', function (socket) {
             rooms[profile.room].users.splice(rooms[profile.room].users.indexOf(profile), 1);
             profile.color = settings.color;
             profile.name = settings.name;
+            profile.url = settings.url;
             profile.settings = settings;
             socket.set('profile', profile, function (err) {
                 if (err) console.log(err);

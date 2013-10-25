@@ -17,11 +17,11 @@ exports.camelcase = function(str, uppercaseFirst){
 exports.underscore = function(str){
   return str.replace(/([a-z\d])([A-Z])/g, '$1_$2').toLowerCase();
 };
-exports.defaultProfile = function(sid){
+exports.defaultProfile = function(){
     return {
-        id:     sid,
         gid:    false,
         name:   String('Anonymous'),
+        url:    String(''),
         color:  String('#333'),
         image:  String('/asset/img/anonymous.gif'),
         room:   String('Lobby'),
