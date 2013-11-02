@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" ng-app="OpenGroupChat">
+<html lang="en">
   <head>
     <meta charset="UTF-8">
     <title>Open Group Chat</title>
@@ -54,281 +54,303 @@
     <link rel="stylesheet" href="/asset/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="/asset/css/angular-toggle-switch.css">
   </head>
-  <body class="background">
-    <div id="navbar" class="navbar navbar-default navbar-static-top navbar-inverse hide" role="navigation">
-        <div class="navbar-inner">
-            <span class="pull-left ogc"><img src="/asset/img/favicon48.png">Open Group Chat</span>
-            <div class="pull-right" id="gapi-login">
-                <a href="#settings" role="button" class="btn btn-lg" data-toggle="modal"><span class="glyphicon glyphicon-cog text-danger"></span></a>
-                <img id="gapi-image" class="img-circle">
+  <body class="background hide" ng-app="OpenGroupChat">
+    <div ng-controller="MenuCtrl" ng-show="auth" class="ng-hide">
+        <div class="navbar navbar-default navbar-static-top navbar-inverse" role="navigation">
+            <div class="navbar-inner">
+                <span class="pull-left ogc"><img src="/asset/img/favicon48.png">Open Group Chat</span>
+                <div class="pull-right">
+                    <a href="#settings" role="button" class="btn btn-lg" data-toggle="modal">
+                        <span class="glyphicon glyphicon-cog text-danger"></span>
+                    </a>
+                    <img ng-src="{{image}}" src="" class="img-circle">
+                </div>
             </div>
         </div>
-    </div>
+        <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)">{{alert.msg}}</alert>
+    </div><!-- /ng-controller="MenuCtrl" -->
     <!-- Settings Modal -->
-    <div id="settings" ng-controller="SettingsController" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Preferences</h4>
-                </div>
-                <form class="form-horizontal" role="form" ng-submit="save()">
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label class="col-lg-6 control-label">Display Name</label>
-                            <div class="input-group">
-                                <span class="input-group-addon">
-                                    Handle
-                                </span>
-                                <input type="text" ng-model="settings.name" placeholder="display name" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-lg-6 control-label">Your Profile Url</label>
-                            <div class="input-group">
-                                <span class="input-group-addon">
-                                    Url
-                                </span>
-                                <input type="url" ng-model="settings.url" placeholder="http://example.com" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-lg-6 control-label">Message Text</label>
-                            <div class="input-group">
-                                <span class="input-group-addon">
-                                    Color
-                                </span>
-                                <input type="color" ng-model="settings.color" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-lg-6 control-label">Local History</label>
-                            <div class="input-group">
-                                <span class="input-group-addon">
-                                    Messages
-                                </span>
-                                <input type="number" min="10" max="100" step="5" ng-model="settings.messages" class="form-control"> 
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-lg-6 control-label">Enable Notifications</label>
-                            <div toggle-switch model="settings.notifications"></div>
-                        </div>
-                        <div ng-show="settings.notifications" class="ng-hide form-group">
-                            <label class="col-lg-6 control-label">Announce User Leave Room</label>
-                            <div toggle-switch model="settings.leave"></div>
-                        </div>
-                        <div ng-show="settings.notifications" class="ng-hide form-group">
-                            <label class="col-lg-6 control-label">Announce User Join Room</label>
-                            <div toggle-switch model="settings.join"></div>
-                        </div>
-                        <div ng-show="settings.notifications" class="ng-hide form-group">
-                            <label class="col-lg-6 control-label">Announce User Login</label>
-                            <div toggle-switch model="settings.login"></div>
-                        </div>
-                        <div ng-show="settings.notifications" class="ng-hide form-group">
-                            <label class="col-lg-6 control-label">Announce Lobby Arrivals</label>
-                            <div toggle-switch model="settings.lobby"></div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-danger" ng-click="save()" data-dismiss="modal">Save changes</button>
-                    </div>
-                </form>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-    <!-- New Room Modal -->
-    <div id="newRoom" ng-controller="RoomController" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Create Room</h4>
-                </div>
-                <form class="form-horizontal" role="form" ng-submit="save()">
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label class="col-lg-4 control-label">Room Name</label>
-                            <div class="col-lg-8">
-                                <input type="text" ng-model="room.name" placeholder="Room Name" class="form-control">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-lg-4 control-label">Password Protected</label>
-                            <div class="col-lg-8">
-                                <div toggle-switch model="room.private"></div>
-                            </div>
-                        </div>
-                        <div ng-show="room.private" class="ng-hide" class="form-group">
-                            <label class="col-lg-4 control-label">Password</label>
-                            <div class="col-lg-8">
-                                <input type="password" ng-model="room.password" placeholder="Password" class="form-control">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-danger" ng-disabled="!room.name" ng-click="save()" data-dismiss="modal">Save Room</button>
-                    </div>
-                </form>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-    <img id="ogc-logo" src="/asset/img/open-group-chat-600x200.png" class="img-responsive"><br>
-    <a id="authorize-button" style="visibility: hidden"><img class="img-responsive" src="/asset/img/sign-in-with-google.png" width="250" height="55" alt="Sign-In with Google" style="cursor: pointer;"></a>
-    <div ng-controller="ChatController" class="container-fluid hide">
-        <!-- Join Room Modal -->
-        <div id="joinRoom" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div ng-controller="SettingsCtrl">
+        <div id="settings" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Join Room</h4>
+                        <h4 class="modal-title">Preferences</h4>
                     </div>
-                    <form class="form-horizontal" role="form" ng-submit="join()">
+                    <form class="form-horizontal" role="form" ng-submit="save()">
                         <div class="modal-body">
                             <div class="form-group">
-                                <label class="col-lg-4 control-label">Password</label>
-                                <div class="col-lg-8">
-                                    <input type="password" ng-model="password" placeholder="Password" class="form-control">
+                                <label class="col-lg-6 control-label">Display Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        Handle
+                                    </span>
+                                    <input type="text" ng-model="settings.name" placeholder="display name" class="form-control">
                                 </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-6 control-label">Your Profile Url</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        Url
+                                    </span>
+                                    <input type="url" ng-model="settings.url" placeholder="http://example.com" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-6 control-label">Message Text</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        Color
+                                    </span>
+                                    <input type="color" ng-model="settings.color" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-6 control-label">Local History</label>
+                                <div class="input-group">
+                                    <span class="input-group-addon">
+                                        Messages
+                                    </span>
+                                    <input type="number" min="10" max="100" step="5" ng-model="settings.messages" class="form-control"> 
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-6 control-label">Enable Notifications</label>
+                                <div toggle-switch model="settings.notifications"></div>
+                            </div>
+                            <div ng-show="settings.notifications" class="ng-hide form-group">
+                                <label class="col-lg-6 control-label">Announce User Leave Room</label>
+                                <div toggle-switch model="settings.leave"></div>
+                            </div>
+                            <div ng-show="settings.notifications" class="ng-hide form-group">
+                                <label class="col-lg-6 control-label">Announce User Join Room</label>
+                                <div toggle-switch model="settings.join"></div>
+                            </div>
+                            <div ng-show="settings.notifications" class="ng-hide form-group">
+                                <label class="col-lg-6 control-label">Announce User Login</label>
+                                <div toggle-switch model="settings.login"></div>
+                            </div>
+                            <div ng-show="settings.notifications" class="ng-hide form-group">
+                                <label class="col-lg-6 control-label">Announce Lobby Arrivals</label>
+                                <div toggle-switch model="settings.lobby"></div>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <input type="hidden" ng-model="roomName">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-danger" ng-disabled="!password" ng-click="join()" data-dismiss="modal">Join</button>
+                            <button type="button" class="btn btn-danger" ng-click="save()" data-dismiss="modal">Save changes</button>
                         </div>
                     </form>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->
-        <!-- Edit Room Modal -->
-        <div id="editRoom" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Edit Room</h4>
+    </div><!-- /ng-controller="SettingsCtrl" -->
+    <div class="container-fluid">
+        <div ng-controller="LandingCtrl" ng-show="!auth" class="ng-hide" test="{{auth}}">
+            <img id="ogc-logo" src="/asset/img/open-group-chat-600x200.png" class="img-responsive">
+            <br>
+            <a ng-click="login()" href="#"><img class="img-responsive" src="/asset/img/sign-in-with-google.png" width="250" height="55" alt="Sign-In with Google" style="cursor: pointer;"></a>
+        </div><!-- /ng-controller="LandingCtrl" -->
+        <div ng-controller="ChatCtrl" ng-show="auth" class="ng-hide" aria-hidden="true">
+            <!-- New Room Modal -->
+            <div id="newRoom" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h4 class="modal-title">Create Room</h4>
+                        </div>
+                        <form class="form-horizontal" role="form" ng-submit="save()">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label class="col-lg-4 control-label">Room Name</label>
+                                    <div class="col-lg-8">
+                                        <input type="text" ng-model="newRoom.name" placeholder="Room Name" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-lg-4 control-label">Password Protected</label>
+                                    <div class="col-lg-8">
+                                        <div toggle-switch model="newRoom.private"></div>
+                                    </div>
+                                </div>
+                                <div ng-show="newRoom.private" class="ng-hide" class="form-group">
+                                    <label class="col-lg-4 control-label">Password</label>
+                                    <div class="col-lg-8">
+                                        <input type="password" ng-model="newRoom.password" placeholder="Password" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-danger" ng-disabled="!newRoom.name" ng-click="add()" data-dismiss="modal">Save Room</button>
+                            </div>
+                        </form>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+            <!-- Join Room Modal -->
+            <div id="joinRoom" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h4 class="modal-title">Join {{joiningRoom.name}}</h4>
+                        </div>
+                        <form class="form-horizontal" role="form" ng-submit="join()">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label class="col-lg-4 control-label">Password</label>
+                                    <div class="col-lg-8">
+                                        <input type="password" ng-model="joiningRoom.password" placeholder="Password" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="hidden" ng-model="joiningRoom.id">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-danger" ng-disabled="!joiningRoom.password || joiningRoom.password.length < 6" ng-click="join()" data-dismiss="modal">Join</button>
+                            </div>
+                        </form>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+            <!-- Edit Room Modal -->
+            <div id="editRoom" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h4 class="modal-title">Edit Room</h4>
+                        </div>
+                        <form class="form-horizontal" role="form" ng-submit="edit()">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label class="col-lg-4 control-label">Room Name</label>
+                                    <div class="col-lg-8">
+                                        <input type="text" ng-model="editingRoom.name" placeholder="Room Name" class="form-control" ng-disabled="!profile.mod || rooms[editingRoom.id].owner !== profile.gid">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-lg-4 control-label">Password Protected</label>
+                                    <div class="col-lg-8">
+                                        <div toggle-switch model="editingRoom.private"></div>
+                                    </div>
+                                </div>
+                                <div ng-show="editingRoom.private" class="ng-hide" class="form-group">
+                                    <label class="col-lg-4 control-label">Password</label>
+                                    <div class="col-lg-8">
+                                        <input type="password" ng-model="editingRoom.password" placeholder="Password" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="hidden" ng-model="editingRoom.id">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-danger" ng-click="edit()" data-dismiss="modal">Edit Room</button>
+                            </div>
+                        </form>
+                        <div class="panel panel-danger ng-hide" ng-show="editingRoom.members[profile.gid].admin">
+                            <div class="panel-heading">Users</div>
+                            <div ng-repeat="(gid, user) in editingRoom.members | orderBy:'user.name'">
+                                <img ng-src="{{user.image}}" class="img-circle">&nbsp;
+                                <span ng-bind="user.name" style="color:{{user.color}};"></span>&nbsp;
+                                <a href="#" ng-href="{{user.url}}" target="_blank" title="{{user.name}}'s Url" ng-show="user.url.length > 11" class="ng-hide"><span class="glyphicon glyphicon-new-window"></span></a>&nbsp;
+                                <span ng-class="(user.online)?'text-success':'text-danger';" class="glyphicon glyphicon-globe"></span>&nbsp;
+                                <a href="#kick" role="button" class="ng-hide" ng-show="editingRoom.private && profile.gid != gid && !user.owner && editingRoom.members[profile.gid].admin" ng-click="kick('{{editingRoom.id}}','{{gid}}')" title="Kick User" ><span class="glyphicon glyphicon-trash"></span></a>
+                                <a href="#makeAdmin" role="button" class="ng-hide" ng-click="makeAdmin('{{editingRoom.id}}','{{user.gid}}')" ng-show="profile.gid != gid && editingRoom.members[profile.gid].owner" title="Make Group Admin" ><span class="glyphicon glyphicon-thumbs-up"></span></a>
+                                <a href="#revokeAdmin" role="button" class="ng-hide" ng-click="revokeAdmin('{{editingRoom.id}}','{{user.gid}}')" ng-show="profile.gid != gid && editingRoom.members[profile.gid].owner" title="Revoke Group Admin" ><span class="glyphicon glyphicon-thumbs-down"></span></a>
+                            </div>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+            <div class="row">
+                <div class="col-md-3 well">
+                    <div class="panel panel-danger">
+                        <button type="button" class="btn btn-default pull-right" toggle-button="rooms" ><span toggle-icon class="glyphicon glyphicon-chevron-left"></span>&nbsp;<span toggle-text >Hide</span></button>
+                        <div class="panel-heading">Rooms</div>
+                        <div id="rooms">
+                            <div ng-repeat="room in rooms | orderBy:'room.id'" class="panel-body">
+                                <div>
+                                    <a href="#joinRoom" ng-click="joinRoom('{{room.id}}')" class="ng-hide" title="Join Room" ng-show="profile.room != room.id"><span class="glyphicon glyphicon-log-in"></span></a>
+                                    <a href="#editRoom" ng-click="editRoom('{{room.id}}')" role="button" class="ng-hide" title="Edit Room" ng-show="room.members[profile.gid].admin" data-toggle="modal" ><span class="glyphicon glyphicon-cog"></span></a>
+                                    <span ng-bind="room.name"></span>&nbsp;
+                                    <span class="glyphicon glyphicon-eye-open"></span>&nbsp;
+                                    <span class="badge" ng-bind="room.viewing"></span>&nbsp;
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <a href="#newRoom" role="button" class="btn btn-sm btn-warning ng-hide" data-toggle="modal" ng-show="profile.mod" ><span class="glyphicon glyphicon-plus"></span>&nbsp;Add Room</a>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-default pull-right" toggle-button="in-room" ><span toggle-icon class="glyphicon glyphicon-chevron-left"></span>&nbsp;<span toggle-text >Hide</span></button>
+                        <div class="panel-heading">Online In {{rooms[profile.room].name}}</div>
+                        <div id="in-room">
+                            <div ng-repeat="(gid, user) in rooms[profile.room].members | orderBy:'user.name'" ng-show="user.online" class="ng-hide">
+                                <img ng-src="{{user.image}}" class="img-circle">&nbsp;
+                                <span ng-bind="user.name" style="color:{{user.color}};"></span>&nbsp;
+                                <a href="#" ng-href="{{user.url}}" target="_blank" title="{{user.name}}'s Url" ng-show="user.url.length > 11" class="ng-hide"><span class="glyphicon glyphicon-new-window"></span></a>&nbsp;
+                                <a href="#kick" role="button" class="ng-hide" ng-show="profile.gid != gid && !user.owner && rooms[profile.room].members[profile.gid].admin" ng-click="kick('{{rooms[user.room].id}}','{{gid}}')" title="Kick User" ><span class="glyphicon glyphicon-trash"></span></a>
+                            </div>
+                        </div>
                     </div>
-                    <form class="form-horizontal" role="form" ng-submit="edit()">
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label class="col-lg-4 control-label">Room Name</label>
-                                <div class="col-lg-8">
-                                    <input type="text" ng-model="editingRoom.name" placeholder="Room Name" class="form-control" ng-disabled="true">
-                                </div>
+                </div>
+                <div class="col-md-6">
+                    <div id="messages" class="scrollbar col-md-6">
+                        <div ng-repeat="msg in messages">
+                            <div class="bubble col-md-10" style="color:{{msg.color}};">
+                                <span ng-bind-html="msg.text"></span>
+                                <span class="pull-right" style="font-size: 10px;">{{msg.name}} @ {{msg.time}}</span>
                             </div>
-                            <div class="form-group">
-                                <label class="col-lg-4 control-label">Password Protected</label>
-                                <div class="col-lg-8">
-                                    <div toggle-switch model="editingRoom.private"></div>
-                                </div>
-                            </div>
-                            <div ng-show="editingRoom.private" class="ng-hide" class="form-group">
-                                <label class="col-lg-4 control-label">Password</label>
-                                <div class="col-lg-8">
-                                    <input type="password" ng-model="editingRoom.password" placeholder="Password" class="form-control">
-                                </div>
-                            </div>
+                            <img ng-src="{{msg.image}}" class="img-circle pull-right">
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-danger" ng-click="edit()" data-dismiss="modal">Edit Room</button>
-                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 well">
+                    <form ng-submit="send()">
+                        <textarea rows="6" ng-model="text" placeholder="Message" class="form-control"></textarea>
+                        <button type="submit" ng-disabled="text.length < 3" class="btn btn-danger"><span class="glyphicon glyphicon-share-alt"></span>&nbsp;Share</button>
                     </form>
-                    <div class="panel panel-danger ng-hide" ng-show="editingRoom.users.length > 0 && ( editingRoom.admins.indexOf(profile.gid) >= 0 || editingRoom.creator == profile.gid )">
-                        <div class="panel-heading">Users</div>
-                        <div ng-repeat="user in editingRoom.users">
-                            <img ng-src="{{user.image}}" class="img-circle">&nbsp;
-                            <span ng-bind="user.name" style="color:{{user.color}};"></span>&nbsp;
-                            <span class="ng-hide" ng-show="user.gid && user.gid != profile.gid && editingRoom.creator != user.gid">
-                                <button type="button" role="button" class="btn btn-default ng-hide" ng-show="editingRoom.id != 'Lobby'" ng-click="kick('{{editingRoom.id}}','{{user.gid}}')" title="Kick User" ><span class="glyphicon glyphicon-trash"></span></button>&nbsp;
-                                <button type="button" role="button" class="btn btn-danger ng-hide" ng-click="makeAdmin('{{editingRoom.id}}','{{user.gid}}')" ng-show="editingRoom.admins.indexOf(user.gid) < 0" title="Make Group Admin" ><span class="glyphicon glyphicon-tower"></span></button>
-                                <button type="button" role="button" class="btn btn-warning ng-hide" ng-click="revokeAdmin('{{editingRoom.id}}','{{user.gid}}')" ng-show="editingRoom.admins.indexOf(user.gid) >= 0" title="Revoke Group Admin" ><span class="glyphicon glyphicon-thumbs-down"></span></button>
-                            </span>
-                        </div>
-                    </div>
-                </div><!-- /.modal-content -->
-            </div><!-- /.modal-dialog -->
-        </div><!-- /.modal -->
-        <div class="row">
-            <div class="col-md-3 well">
-                <div class="panel panel-danger">
-                    <button type="button" class="btn btn-default pull-right" toggle-button="rooms" ><span toggle-icon class="glyphicon glyphicon-chevron-left"></span>&nbsp;<span toggle-text >Hide</span></button>
-                    <div class="panel-heading">Rooms</div>
-                    <div id="rooms">
-                        <div ng-repeat="room in rooms" class="panel-body">
-                            <div>
-                                <button type="button" ng-click="joinRoom('{{room.id}}')" class="btn btn-xs btn-danger ng-hide" title="Join Room" ng-show="profile.room != room.id" ><span class="glyphicon glyphicon-log-in"></span></button>
-                                <a href="#editRoom" ng-click="editRoom('{{room.id}}')" role="button" class="btn btn-xs btn-default ng-hide" title="Edit Room" ng-show="profile.gid == room.creator || room.admins.indexOf(profile.gid) >= 0" data-toggle="modal" ><span class="glyphicon glyphicon-cog"></span></a>
-                                <span ng-bind="room.name"></span>&nbsp;
-                                <span class="glyphicon glyphicon-eye-open"></span>&nbsp;
-                                <span class="badge" ng-bind="room.users.length"></span>&nbsp;
+                    <div class="panel panel-danger">
+                        <button type="button" class="btn btn-default pull-right" toggle-button="online" ><span toggle-icon class="glyphicon glyphicon-chevron-left"></span>&nbsp;<span toggle-text >Hide</span></button>
+                        <div class="panel-heading">Online</div>
+                        <div ng-repeat="room in rooms">
+                            <div ng-repeat="(gid, user) in room.members | orderBy:'user.name'" ng-show="user.online" class="ng-hide">
+                                <img ng-src="{{user.image}}" class="img-circle">&nbsp;
+                                <span ng-bind="user.name" style="color:{{user.color}};"></span>&nbsp;
+                                <a href="#" ng-href="{{user.url}}" target="_blank" title="{{user.name}}'s Url" ng-show="user.url.length > 11" class="ng-hide"><span class="glyphicon glyphicon-new-window"></span></a>&nbsp;
+                                <span class="glyphicon glyphicon-bullhorn"></span>&nbsp;{{room.name}}&nbsp;
+                                <a href="#joinRoom" ng-click="joinRoom('{{room.id}}')" class="ng-hide" title="Join Room" ng-show="profile.room != room.id"><span class="glyphicon glyphicon-log-in"></span></button>
                             </div>
                         </div>
-                        <div class="panel-body">
-                            <a href="#newRoom" role="button" class="btn btn-sm btn-warning ng-hide" data-toggle="modal" ng-show="profile.gid" ><span class="glyphicon glyphicon-plus"></span>&nbsp;Add Room</a>
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn-default pull-right" toggle-button="in-room" ><span toggle-icon class="glyphicon glyphicon-chevron-left"></span>&nbsp;<span toggle-text >Hide</span></button>
-                    <div class="panel-heading">Online In {{rooms[profile.room].name}}</div>
-                    <div id="in-room">
-                        <div ng-repeat="user in rooms[profile.room].users">
-                            <img ng-src="{{user.image}}" class="img-circle">&nbsp;
-                            <a href="" ng-href="{{user.url}}" target="_blank" ><span ng-bind="user.name" style="color:{{user.color}};"></span></a>&nbsp;
-                            <button type="button" role="button" class="btn btn-default ng-hide" ng-show="rooms[profile.room].id != 'Lobby' && user.gid && user.gid != profile.gid && rooms[profile.room].creator != user.gid && ( rooms[profile.room].admins.indexOf(profile.gid) >= 0 || rooms[profile.room].creator == profile.gid )" ng-click="kick('{{rooms[user.room].id}}','{{user.gid}}')" title="Kick User" ><span class="glyphicon glyphicon-trash"></span></button>
-                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div id="messages" class="scrollbar col-md-6">
-                    <div ng-repeat="msg in messages">
-                        <div class="bubble col-md-10" style="color:{{msg.color}};">
-                            <span ng-bind-html="msg.text"></span>
-                            <span class="pull-right" style="font-size: 10px;">{{msg.name}} @ {{msg.time}}</span>
-                        </div>
-                        <img ng-src="{{msg.image}}" class="img-circle pull-right">
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 well">
-                <form ng-submit="send()">
-                    <textarea rows="6" ng-model="text" placeholder="Message" class="form-control"></textarea>
-                    <button type="submit" ng-disabled="text.length < 3" class="btn btn-danger"><span class="glyphicon glyphicon-share-alt"></span>&nbsp;Share</button>
-                    <input type="hidden" value="" ng-model="name">
-                    <input type="hidden" value="" ng-model="url">
-                    <input type="hidden" value="" ng-model="color">
-                    <input type="hidden" value="" ng-model="image">
-                </form>
-                <div class="panel panel-danger">
-                    <button type="button" class="btn btn-default pull-right" toggle-button="online" ><span toggle-icon class="glyphicon glyphicon-chevron-left"></span>&nbsp;<span toggle-text >Hide</span></button>
-                    <div class="panel-heading">Online</div>
-                    <div id="online">
-                        <div ng-repeat="user in users">
-                            <img ng-src="{{user.image}}" class="img-circle">&nbsp;
-                            <a href="" ng-href="{{user.url}}" target="_blank" ><span ng-bind="user.name" style="color:{{user.color}};"></span></a>&nbsp;
-                            <span class="glyphicon glyphicon-bullhorn"></span>&nbsp;{{rooms[user.room].name}}&nbsp;
-                            <button type="button" ng-click="joinRoom('{{user.room}}')" class="btn btn-xs btn-danger ng-hide" title="Join Room" ng-show="profile.room != user.room" ><span class="glyphicon glyphicon-log-in"></span></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </div><!-- /ng-controller="ChatCtrl" -->
     </div>
     <script type="text/javascript" language="javascript" charset="utf-8" src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" language="javascript" charset="utf-8" src="/asset/js/lib/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" language="javascript" charset="utf-8" src="/asset/js/lib/bootstrap.min.js"></script>
+    <script type="text/javascript" language="javascript" charset="utf-8" src="/asset/js/lib/angular.min.js"></script>
+    <script type="text/javascript" language="javascript" charset="utf-8" src="/asset/js/lib/angular-toggle-switch.min.js"></script>
+    <script type="text/javascript" language="javascript" charset="utf-8" src="/asset/js/lib/ui-bootstrap-custom-0.6.0.min.js"></script>
+    <script type="text/javascript" language="javascript" charset="utf-8" src="/asset/js/lib/ui-bootstrap-custom-tpls-0.6.0.min.js"></script>
+    <script type="text/javascript" language="javascript" charset="utf-8" src="https://apis.google.com/js/client.js"></script>
     <script type="text/javascript" language="javascript" charset="utf-8">
-        socket = io.connect();
+    window.ogc = {
+        module: angular.module('OpenGroupChat', ['toggle-switch','ui.bootstrap']).config(function($sceProvider) {
+                $sceProvider.enabled(false);
+            }),
+        connection: io.connect('/app'),
+        landing: io.connect('/landing'),
+        notifications: ( "Notification" in window ) ? true : false
+    };
     </script>
-    <script type="text/javascript" language="javascript" charset="utf-8" src="/asset/js/library/jquery.min.js"></script>
-    <script type="text/javascript" language="javascript" charset="utf-8" src="/asset/js/library/bootstrap.min.js"></script>
-    <script type="text/javascript" language="javascript" charset="utf-8" src="/asset/js/library/angular.min.js"></script>
-    <script type="text/javascript" language="javascript" charset="utf-8" src="/asset/js/library/angular-toggle-switch.min.js"></script>
-    <script type="text/javascript" language="javascript" charset="utf-8" src="/asset/js/controller/index.js"></script>
-    <script type="text/javascript" language="javascript" charset="utf-8" src="/asset/js/static/index.js"></script>
-    <script src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
+    <script type="text/javascript" language="javascript" charset="utf-8" src="/asset/js/controller/landing.js"></script>
+    <script type="text/javascript" language="javascript" charset="utf-8" src="/asset/js/controller/menu.js"></script>
+    <script type="text/javascript" language="javascript" charset="utf-8" src="/asset/js/controller/chat.js"></script>
+    <script type="text/javascript" language="javascript" charset="utf-8" src="/asset/js/controller/settings.js"></script>
   </body>
 </html>
