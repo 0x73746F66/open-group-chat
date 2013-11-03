@@ -3,7 +3,7 @@
 var http        = require('http'),
     fs          = require('fs'),
     path        = require('path'),
-    async       = require('async'),
+    //async       = require('async'),
     socketio    = require('socket.io'),
     express     = require('express'),
     db          = require('./data/api'),
@@ -12,8 +12,8 @@ var http        = require('http'),
     server      = http.createServer(router),
     io          = socketio.listen(server),
 
-    room_db     = new db.ns('room'),
-    user_db     = new db.ns('user'),
+    room_db     = new db.Ns('room'),
+    user_db     = new db.Ns('user'),
     rooms       = {};
     
     router.use(express.static(path.resolve(__dirname, 'client')));
@@ -46,7 +46,7 @@ var userJoinRoom = function (profile) {
 // emitSelf                                     socket.emit( 'message' , resp );
 // all in room                                  socket.broadcast.to( room ).emit(' message' , resp );
 
-var landing = io.of('/landing').on('connection', function (socket) {
+io.of('/landing').on('connection', function (socket) {
     var sockets     = [];
     sockets.push(socket);
     
@@ -55,6 +55,7 @@ var landing = io.of('/landing').on('connection', function (socket) {
             var profile = {};
             if (!data.gid) {
                 profile = app.defaultProfile();
+                socket.emit('update-profile', profile);
                 socket.emit('checkLogin', {});
             } else {
                 user_db.get( data.gid, function(profile) {
@@ -65,7 +66,6 @@ var landing = io.of('/landing').on('connection', function (socket) {
             app.log(e);
         }
     });
-    
 });
 var connection = io.of('/app').on('connection', function (socket) {
     var sockets     = [];
@@ -102,14 +102,16 @@ var connection = io.of('/app').on('connection', function (socket) {
     socket.on('disconnect', function () {
         try {
             socket.get('gid', function (err, gid) {
-                if (err) console.log(err);
-                app.log(gid+' disconnected');
-                user_db.get( gid, function(profile) {
-                    rooms[profile.room].members[gid].online = false;
-                    socket.leave(profile.room);
-                    socket.broadcast.to(profile.room).emit('roomUserLogout',profile);
-                    connection.emit('rooms', rooms);
-                });
+                if (err) app.log(err);
+                if (gid) {
+                    app.log(gid+' disconnected');
+                    user_db.get( gid, function(profile) {
+                        rooms[profile.room].members[gid].online = false;
+                        socket.leave(profile.room);
+                        socket.broadcast.to(profile.room).emit('roomUserLogout',profile);
+                        connection.emit('rooms', rooms);
+                    });
+                }
             });
         } catch (e) {
             app.log(e);
@@ -161,7 +163,7 @@ var connection = io.of('/app').on('connection', function (socket) {
                 });
             });
         } catch (e) {
-            console.log(e);
+            app.log(e);
         }
     });
 
@@ -184,7 +186,7 @@ var connection = io.of('/app').on('connection', function (socket) {
                         created:    new Date(),
                         owner:      gid,
                         members:    {},
-                        messages:   [],
+                        messages:   []
                     };
                     rooms[roomId].members[gid] = {online:false,admin:true,owner:true};
                     room_db.set( roomId, rooms[roomId] );
@@ -246,6 +248,6 @@ var connection = io.of('/app').on('connection', function (socket) {
 
 server.listen(process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || 80, process.env.OPENSHIFT_NODEJS_IP || process.env.IP || "0.0.0.0", function(){
   var addr = server.address();
-  app.log("Chat server listening at", addr.address + ":" + addr.port);
+  console.log("Chat server listening at", addr.address + ":" + addr.port);
 });
 

@@ -1,7 +1,7 @@
 /*
  * Simple Key/Pair Database files
  */
-exports.ns = function(dir){
+exports.Ns = function(dir){
     var fs = require('fs');
     var path = require('path');
     var db_path = path.resolve(__dirname);
