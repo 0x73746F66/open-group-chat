@@ -18,7 +18,25 @@ exports.underscore = function(str){
   return str.replace(/([a-z\d])([A-Z])/g, '$1_$2').toLowerCase();
 };
 exports.log = function (e) {
-    console.log(e); // log to file !!!
+    console.log(e);
+    var fs = require('fs');
+    var path = require('path');
+    var doc_root = path.resolve(__dirname);
+    fs.open( doc_root + "/client/logs/server.log", 'a', 666, function( err, id ) {
+        if(err) {
+            console.log(err);
+        }
+        fs.write( id, e, null, 'utf8', function(err){
+            if(err) {
+                console.log(err);
+            }
+            fs.close(id, function(err){
+                if(err) {
+                    console.log(err);
+                }
+            });
+        });
+    });
 };
 exports.defaultProfile = function(gid) {
     return {
