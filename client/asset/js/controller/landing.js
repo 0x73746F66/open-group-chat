@@ -55,6 +55,11 @@ app.module.controller('LandingCtrl', function($scope) {
 
     app.landing.on('checkLogin', function (data) {
         jQuery('body').removeClass('hide');
+        if (window.location.port == 3000) {
+            app.connection.emit('login', { gid: "108887414317459154833" , image: "https://lh6.googleusercontent.com/-hYZ2O7Tw15c/AAAAAAAAAAI/AAAAAAAABQ8/7JJyfgnnpI0/photo.jpg?sz=50" });
+        } else if ($scope.auth) {
+            app.connection.emit('login', { gid: $scope.gid });
+        }
     });
 
     $scope.login = function () {

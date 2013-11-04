@@ -55,28 +55,30 @@
     <link rel="stylesheet" href="/asset/css/angular-toggle-switch.css">
   </head>
   <body class="background hide" ng-app="OpenGroupChat">
-    <div ng-controller="MenuCtrl" ng-show="auth" class="ng-hide">
-        <div class="navbar navbar-default navbar-static-top navbar-inverse" role="navigation">
-            <div class="navbar-inner">
-                <span class="pull-left ogc"><img src="/asset/img/favicon48.png">Open Group Chat</span>
-                <div class="pull-right">
-                    <a href="#settings" role="button" class="btn btn-lg" data-toggle="modal">
-                        <span class="glyphicon glyphicon-cog text-danger"></span>
-                    </a>
-                    <img ng-src="{{image}}" src="" class="img-circle">
+    <header>
+        <section aria-labelledby="openGroupChatHeading" ng-controller="MenuCtrl" ng-show="auth" class="ng-hide">
+            <div class="navbar navbar-default navbar-static-top navbar-inverse" role="navigation">
+                <div class="navbar-inner">
+                    <span class="pull-left ogc" id="openGroupChatHeading"><img src="/asset/img/favicon48.png">Open Group Chat</span>
+                    <div class="pull-right">
+                        <a href="#settings" role="button" class="btn btn-lg" data-toggle="modal">
+                            <span class="glyphicon glyphicon-cog text-danger"></span>
+                        </a>
+                        <img ng-src="{{image}}" src="" class="img-circle">
+                    </div>
                 </div>
             </div>
-        </div>
-        <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)">{{alert.msg}}</alert>
-    </div><!-- /ng-controller="MenuCtrl" -->
+            <alert ng-repeat="alert in alerts" type="alert.type" close="closeAlert($index)">{{alert.msg}}</alert>
+        </section><!-- /ng-controller="MenuCtrl" -->
+    </header>
     <!-- Settings Modal -->
-    <div ng-controller="SettingsCtrl">
+    <section aria-labelledby="preferencesHeading" ng-controller="SettingsCtrl">
         <div id="settings" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Preferences</h4>
+                        <h4 class="modal-title" id="preferencesHeading">Preferences</h4>
                     </div>
                     <form class="form-horizontal" role="form" ng-submit="save()">
                         <div class="modal-body">
@@ -145,21 +147,21 @@
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->
-    </div><!-- /ng-controller="SettingsCtrl" -->
-    <div class="container-fluid">
-        <div ng-controller="LandingCtrl" ng-show="!auth" class="ng-hide" test="{{auth}}">
+    </section><!-- /ng-controller="SettingsCtrl" -->
+    <main class="container-fluid">
+        <section ng-controller="LandingCtrl" ng-show="!auth" class="ng-hide" test="{{auth}}">
             <img id="ogc-logo" src="/asset/img/open-group-chat-600x200.png" class="img-responsive">
             <br>
             <a ng-click="login()" href="#"><img class="img-responsive" src="/asset/img/sign-in-with-google.png" width="250" height="55" alt="Sign-In with Google" style="cursor: pointer;"></a>
-        </div><!-- /ng-controller="LandingCtrl" -->
-        <div ng-controller="ChatCtrl" ng-show="auth" class="ng-hide" aria-hidden="true">
+        </section><!-- /ng-controller="LandingCtrl" -->
+        <section aria-labelledby="chatHeading" ng-controller="ChatCtrl" ng-show="auth" class="ng-hide" aria-hidden="true">
             <!-- New Room Modal -->
-            <div id="newRoom" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <section aria-labelledby="newRoomHeading" id="newRoom" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                            <h4 class="modal-title">Create Room</h4>
+                            <h4 class="modal-title" id="newRoomHeading">Create Room</h4>
                         </div>
                         <form class="form-horizontal" role="form" ng-submit="save()">
                             <div class="modal-body">
@@ -189,14 +191,14 @@
                         </form>
                     </div><!-- /.modal-content -->
                 </div><!-- /.modal-dialog -->
-            </div><!-- /.modal -->
+            </section><!-- /.modal -->
             <!-- Join Room Modal -->
-            <div id="joinRoom" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <section aria-labelledby="joinRoomHeading" id="joinRoom" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                            <h4 class="modal-title">Join {{joiningRoom.name}}</h4>
+                            <h4 class="modal-title" id="joinRoomHeading">Join {{joiningRoom.name}}</h4>
                         </div>
                         <form class="form-horizontal" role="form" ng-submit="join()">
                             <div class="modal-body">
@@ -215,14 +217,14 @@
                         </form>
                     </div><!-- /.modal-content -->
                 </div><!-- /.modal-dialog -->
-            </div><!-- /.modal -->
+            </section><!-- /.modal -->
             <!-- Edit Room Modal -->
-            <div id="editRoom" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <section aria-labelledby="editRoomHeading" id="editRoom" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                            <h4 class="modal-title">Edit Room</h4>
+                            <h4 class="modal-title" id="editRoomHeading">Edit Room</h4>
                         </div>
                         <form class="form-horizontal" role="form" ng-submit="edit()">
                             <div class="modal-body">
@@ -265,12 +267,12 @@
                         </div>
                     </div><!-- /.modal-content -->
                 </div><!-- /.modal-dialog -->
-            </div><!-- /.modal -->
+            </section><!-- /.modal -->
             <div class="row">
                 <div class="col-md-3 well">
                     <div class="panel panel-danger">
                         <button type="button" class="btn btn-default pull-right" toggle-button="rooms" ><span toggle-icon class="glyphicon glyphicon-chevron-left"></span>&nbsp;<span toggle-text >Hide</span></button>
-                        <div class="panel-heading">Rooms</div>
+                        <div class="panel-heading" id="chatHeading">Rooms</div>
                         <div id="rooms">
                             <div ng-repeat="room in rooms | orderBy:'room.id'" class="panel-body">
                                 <div>
@@ -328,8 +330,10 @@
                     </div>
                 </div>
             </div>
-        </div><!-- /ng-controller="ChatCtrl" -->
-    </div>
+        </section><!-- /ng-controller="ChatCtrl" -->
+    </main>
+    <footer>
+    </footer>
     <script type="text/javascript" language="javascript" charset="utf-8" src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" language="javascript" charset="utf-8" src="/asset/js/lib/jquery-1.10.2.min.js"></script>
     <script type="text/javascript" language="javascript" charset="utf-8" src="/asset/js/lib/bootstrap.min.js"></script>
