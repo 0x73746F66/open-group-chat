@@ -7,15 +7,19 @@ app.module.controller('MenuCtrl', function($scope) {
     
     $scope.closeAlert = function(index) {
         $scope.alerts.splice(index, 1);
-        var pad = ( 75 + ($scope.alerts.length*70) );
-        jQuery('#messages').css('top', pad+'px');
+        if ( jQuery(document).width() >= 768 ) {
+            var pad = ( 75 + ($scope.alerts.length*70) );
+            jQuery('#messages').css('top', pad+'px');
+        }
     };
     
     app.connection.on('alert', function (data) {
         $scope.alerts.push(data);
         $scope.$apply();
-        var pad = ( 75 + ($scope.alerts.length*70) );
-        jQuery('#messages').css('top', pad+'px');
+        if ( jQuery(document).width() >= 768 ) {
+            var pad = ( 75 + ($scope.alerts.length*70) );
+            jQuery('#messages').css('top', pad+'px');
+        }
     });
 
     app.connection.on('auth', function (profile) {
