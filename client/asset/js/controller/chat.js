@@ -96,8 +96,7 @@ app.module.controller('ChatCtrl', function($scope) {
         if ( $scope.messages.length > $scope.profile.settings.messages ) {
             $scope.messages = $scope.messages.slice(( $scope.messages.length - parseInt($scope.profile.settings.messages) ),$scope.messages.length);
         }
-        $messages.scrollTop( $messages.prop("scrollHeight") );
-        $scope.text = '';
+        $messages.scrollTop( jQuery('#messages').prop("scrollHeight") );
         $scope.$apply();
     });
     
@@ -114,7 +113,7 @@ app.module.controller('ChatCtrl', function($scope) {
             message = addDateTime(message);
             $scope.messages.push(message);
             if ( $scope.messages.length > $scope.profile.settings.messages ) {
-                $scope.messages = $scope.messages.slice(( $scope.messages.length - parseInt($scope.profile.settings.messages) ),$scope.messages.length);
+                $scope.messages = $scope.messages.slice(( $scope.messages.length - parseInt($scope.profile.settings.messages,0) ),$scope.messages.length);
             }
             $messages.scrollTop( $messages.prop("scrollHeight") );
             $scope.text = '';
