@@ -1,6 +1,7 @@
 var app         = window.ogc;
 
 app.module.controller('ChatCtrl', function($scope) {
+    "use strict";
     $scope.profile  = {};
     $scope.rooms    = {};
     $scope.auth     = false;
@@ -10,21 +11,14 @@ app.module.controller('ChatCtrl', function($scope) {
     $scope.joiningRoom = {};
 
     var addDateTime = function(message) {
-        var DAYNAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        var MONTHNAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        var datetime = new Date();
-        message.time = ( datetime.getHours() === 0 ? 12 : ( datetime.getHours() > 12 ? datetime.getHours() - 12 : datetime.getHours() ) )
-                + ":" + 
-                (datetime.getMinutes() < 10 ? 0 : "") + datetime.getMinutes()
-                + " " + 
-                (datetime.getHours() > 11 ? "PM" : "am") + " " +
-                DAYNAMES[datetime.getDay()] + " " + MONTHNAMES[datetime.getMonth()] + " " + datetime.getDate();
+        var DAYNAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+            MONTHNAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+            datetime = new Date();
+        message.time = ( datetime.getHours() === 0 ? 12 : ( datetime.getHours() > 12 ? datetime.getHours() - 12 : datetime.getHours() ) ) + ":" + (datetime.getMinutes() < 10 ? 0 : "") + datetime.getMinutes() + " " + (datetime.getHours() > 11 ? "PM" : "am") + " " + DAYNAMES[datetime.getDay()] + " " + MONTHNAMES[datetime.getMonth()] + " " + datetime.getDate();
         message.text = message.text.replace(/(\b(https?|ftp|file):\/\/[\-A-Z0-9+&@#\/%?=~_|!:,.;]*[\-A-Z0-9+&@#\/%=~_|])/img, '<a target="_blank" href="$1">$1</a>');
         return message;
-    };
-    var newNotification = function (options) {
-        var isWindowFocused = document.querySelector(":focus") === null ? false : true,
-            notification;
+    }, newNotification = function (options) {
+        var notification; // isWindowFocused = document.querySelector(":focus") === null ? false : true;
         if (window.Notification) { /* Safari 6, Chrome (23+) */
             notification =  new Notification( options.title, {
                 icon: options.icon,
@@ -59,17 +53,17 @@ app.module.controller('ChatCtrl', function($scope) {
         $scope.$apply();
     });
     
-    app.connection.on('clear-messages', function (data) {
+    app.connection.on('clear-messages', function ( data ) {
         $scope.messages = [];
         $scope.$apply();
     });
     
-    app.connection.on('rooms', function (data) {
+    app.connection.on('rooms', function ( data ) {
         var online = 0;
-        angular.forEach(data, function(room, roomName){
+        angular.forEach(data, function (room, roomName ) {
             online = 0;
-            angular.forEach(room.members, function(member, gid){
-                if ( member.online ) online++;
+            angular.forEach(room.members, function( member, gid ){
+                if ( member.online ) { online++; }
             });
             data[roomName].viewing = online;
         });
@@ -77,13 +71,13 @@ app.module.controller('ChatCtrl', function($scope) {
         $scope.$apply();
     });
     
-    app.connection.on('recieve-message', function (data) {
-        var message = addDateTime(data);
+    app.connection.on('receive-message', function (data) {
+        var message = addDateTime(data), $messages = jQuery('#messages');
         $scope.messages.push(message);
-        if ( $scope.messages.length > $scope.profile.settings.messages ) {
-            $scope.messages = $scope.messages.slice(( $scope.messages.length - parseInt($scope.profile.settings.messages) ),$scope.messages.length);
+        if ( $scope.messages.length > parseInt( $scope.profile.settings.messages, 0 ) ) {
+            $scope.messages = $scope.messages.slice( ( $scope.messages.length - parseInt( $scope.profile.settings.messages, 0 ) ), $scope.messages.length );
         }
-        $('#messages').scrollTop($('#messages').prop("scrollHeight"));
+        $messages.scrollTop( $messages.prop( "scrollHeight" ) );
         $scope.text = '';
         $scope.$apply();
     });
@@ -95,14 +89,14 @@ app.module.controller('ChatCtrl', function($scope) {
                 title: data.name + " said:",
                 body: data.text
             });
-            if ( notification.show ) notification.show();
+            if ( notification.show ) { notification.show(); }
         }
-        var message = addDateTime(data);
+        var message = addDateTime(data), $messages = jQuery('#messages');
         $scope.messages.push(message);
         if ( $scope.messages.length > $scope.profile.settings.messages ) {
             $scope.messages = $scope.messages.slice(( $scope.messages.length - parseInt($scope.profile.settings.messages) ),$scope.messages.length);
         }
-        $('#messages').scrollTop($('#messages').prop("scrollHeight"));
+        $messages.scrollTop( $messages.prop("scrollHeight") );
         $scope.text = '';
         $scope.$apply();
     });
@@ -110,18 +104,19 @@ app.module.controller('ChatCtrl', function($scope) {
     $scope.send = function send() {
         if ( $scope.text.length > 2 ) {
             app.connection.emit('new-message', $scope.text);
-            var message = {
-                text: $scope.text,
-                color: $scope.profile.color,
-                name: $scope.profile.name,
-                image: $scope.profile.image
-            };
+            var $messages = jQuery('#messages'),
+                message = {
+                    text: $scope.text,
+                    color: $scope.profile.color,
+                    name: $scope.profile.name,
+                    image: $scope.profile.image
+                };
             message = addDateTime(message);
             $scope.messages.push(message);
             if ( $scope.messages.length > $scope.profile.settings.messages ) {
                 $scope.messages = $scope.messages.slice(( $scope.messages.length - parseInt($scope.profile.settings.messages) ),$scope.messages.length);
             }
-            $('#messages').scrollTop($('#messages').prop("scrollHeight"));
+            $messages.scrollTop( $messages.prop("scrollHeight") );
             $scope.text = '';
             $scope.$apply();
         }

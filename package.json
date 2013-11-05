@@ -1,8 +1,8 @@
 {
   "name": "Open-Group-Chat",
-  "version": "0.3.0-dev",
+  "version": "0.3.1-dev",
   "description": "Chat between PC's Openly - Nothing is logged anywhere. Ever.",
-  "main": "app.js",
+  "main": "run.js",
   "repository": { 
       "type"    : "git", 
       "url"     : "https://github.com/chrisdlangton/Open-Group-Chat.git"

@@ -19,7 +19,8 @@ var http        = require('http'),
     router.use(express.static(path.resolve(__dirname, 'client')));
 
     fs.readdir(__dirname+'/data/room', function(err,files) {
-        if (err) app.log(err);
+        "use strict";
+        if (err) { app.log(err); }
         files.forEach(function(fileName){
             var roomName = fileName.replace('.json','');
             room_db.get( roomName , function(data) {
@@ -28,6 +29,7 @@ var http        = require('http'),
         });
     });
 var userJoinRoom = function (profile) {
+    "use strict";
     if ( !rooms[profile.room].members[profile.gid] ) {
         rooms[profile.room].members[profile.gid] = {
             admin:  false,
@@ -47,6 +49,7 @@ var userJoinRoom = function (profile) {
 // all in room                                  socket.broadcast.to( room ).emit(' message' , resp );
 
 io.of('/landing').on('connection', function (socket) {
+    "use strict";
     var sockets     = [];
     sockets.push(socket);
     
@@ -68,13 +71,14 @@ io.of('/landing').on('connection', function (socket) {
     });
 });
 var connection = io.of('/app').on('connection', function (socket) {
+    "use strict";
     var sockets     = [];
     sockets.push(socket);
 
     socket.on('login', function (data) {
         try{
             socket.set('gid', data.gid, function (err) {
-                if (err) app.log(err);
+                if (err) { app.log(err); }
                 user_db.check( data.gid, function() {
                     user_db.get( data.gid, function(profile) {
                         profile.image = data.image;
@@ -83,7 +87,7 @@ var connection = io.of('/app').on('connection', function (socket) {
                         connection.emit('rooms', rooms);
                         socket.broadcast.to(profile.room).emit('roomUserJoin',profile);
                         rooms[profile.room].messages.forEach(function (message) {
-                            socket.emit('recieve-message', message);
+                            socket.emit('receive-message', message);
                         });
                         socket.emit('auth', profile );
                         socket.emit('alert', {
@@ -102,7 +106,7 @@ var connection = io.of('/app').on('connection', function (socket) {
     socket.on('disconnect', function () {
         try {
             socket.get('gid', function (err, gid) {
-                if (err) app.log(err);
+                if (err) { app.log(err); }
                 if (gid) {
                     app.log(gid+' disconnected');
                     user_db.get( gid, function(profile) {
@@ -121,7 +125,7 @@ var connection = io.of('/app').on('connection', function (socket) {
     socket.on('save-settings', function (settings) {
         try{
             socket.get('gid', function(err,gid) {
-                if (err) app.log(err);
+                if (err) { app.log(err); }
                 user_db.get( gid, function(profile) {
                     profile.settings = settings;
                     profile.name = settings.name;
@@ -150,7 +154,7 @@ var connection = io.of('/app').on('connection', function (socket) {
               text: String(text || '')
             };
             socket.get('gid', function(err,gid) {
-                if (err) app.log(err);
+                if (err) { app.log(err); }
                 user_db.get( gid, function(profile) {
                     resp.color = profile.color;
                     resp.name  = profile.name;
@@ -169,14 +173,15 @@ var connection = io.of('/app').on('connection', function (socket) {
 
     socket.on('add-room', function (data) {
         try{
-            if ( data.private && data.password.length < 6 )
+            if ( data.private && data.password.length < 6 ) {
                 socket.emit('alert', {
                     type: 'danger',
                     msg: 'password must be at least 6 characters'
                 });
+            }
             var roomId = app.camelcase(data.name);
             socket.get('gid', function (err, gid) {
-                if (err) app.log(err);
+                if (err) { app.log(err); }
                 if ( !rooms[roomId] ) {
                     rooms[roomId] = {
                         id:         roomId,
@@ -210,7 +215,7 @@ var connection = io.of('/app').on('connection', function (socket) {
     socket.on('join-room', function (data) {
         try {
             socket.get('gid', function(err,gid) {
-                if (err) app.log(err);
+                if (err) { app.log(err); }
                 // @TODO check if already pre-auth for this room
                 if ( ( !rooms[data.id].private ) || ( data.password.length > 2 && rooms[data.id].password === data.password ) ) {
                     user_db.get( gid, function(profile) {
@@ -227,7 +232,7 @@ var connection = io.of('/app').on('connection', function (socket) {
                         connection.emit('rooms', rooms);
                         socket.emit('clear-messages');
                         rooms[data.id].messages.forEach(function (message) {
-                            socket.emit('recieve-message', message);
+                            socket.emit('receive-message', message);
                         });
                     });
                 } else {
@@ -247,7 +252,7 @@ var connection = io.of('/app').on('connection', function (socket) {
 });
 
 server.listen(process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || 80, process.env.OPENSHIFT_NODEJS_IP || process.env.IP || "0.0.0.0", function(){
-  var addr = server.address();
-  console.log("Chat server listening at", addr.address + ":" + addr.port);
+    "use strict";
+    console.log("Chat server listening at", server.address().address + ":" + server.address().port);
 });
 

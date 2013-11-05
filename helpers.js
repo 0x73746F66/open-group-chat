@@ -1,27 +1,31 @@
 exports.capitalize = function(str, allWords){
-  if (allWords) {
-    return str.split(' ').map(function(word){
-      return exports.capitalize(word);
-    }).join(' ');
-  }
-  return str.charAt(0).toUpperCase() + str.substr(1);
+    "use strict";
+    if (allWords) {
+        return str.split(' ').map(function(word){
+          return exports.capitalize(word);
+        }).join(' ');
+    }
+    return str.charAt(0).toUpperCase() + str.substr(1);
 };
 exports.camelcase = function(str, uppercaseFirst){
-  return str.replace(/[^\w\d ]+/g, '').split(' ').map(function(word, i){
-    if (i || (0 == i && uppercaseFirst)) {
-      word = exports.capitalize(word);
-    }
-    return word;
-  }).join('');
+    "use strict";
+    return str.replace(/[^\w\d ]+/g, '').split(' ').map(function(word, i){
+        if (i || (0 === i && uppercaseFirst)) {
+          word = exports.capitalize(word);
+        }
+        return word;
+    }).join('');
 };
 exports.underscore = function(str){
-  return str.replace(/([a-z\d])([A-Z])/g, '$1_$2').toLowerCase();
+    "use strict";
+    return str.replace(/([a-z\d])([A-Z])/g, '$1_$2').toLowerCase();
 };
 exports.log = function (e) {
+    "use strict";
     console.log(e);
-    var fs = require('fs');
-    var path = require('path');
-    var doc_root = path.resolve(__dirname);
+    var fs = require('fs'),
+        path = require('path'),
+        doc_root = path.resolve(__dirname);
     fs.open( doc_root + "/client/logs/server.log", 'a', 666, function( err, id ) {
         if(err) {
             console.log(err);
@@ -39,6 +43,7 @@ exports.log = function (e) {
     });
 };
 exports.defaultProfile = function(gid) {
+    "use strict";
     return {
         gid:    gid || false,
         name:   'Anonymous',
