@@ -1,3 +1,6 @@
+body {
+    overflow-x: hidden;
+}
 [contentEditable] {
     cursor: pointer;
 }
@@ -9,12 +12,6 @@
     right: 0;
     top: 0;
     z-index: -1;
-    /*
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: cover;
-    */
 }
 .ogc {
     color: #D64;

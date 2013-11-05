@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>Open Group Chat</title>
+    <title>Open Group Chat BETA</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta http-equiv="Page-Enter" content="RevealTrans(Duration=2.0,Transition=2)">
     <meta http-equiv="Page-Exit" content="RevealTrans(Duration=3.0,Transition=12)">
@@ -13,7 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="imagetoolbar" content="false">
     <meta name="description" content="Chat between PC's Openly - Nothing is logged anywhere. Ever.">
-    <meta name="copyright" content="Copyright 2012 Christopher D Langton">
+    <meta name="copyright" content="Copyright 2013 Christopher D Langton">
     <meta name="distribution" content="IU">
     <meta name="revisit-after" content="1 week">
     <meta name="language" content="EN">
@@ -21,33 +21,33 @@
     <meta name="contact" content="chris@codewiz.com">
     <meta name="reply-to" content="chris@codewiz.com">
     <meta name="web_author" content="Christopher D. Langton">
-    <meta name="image_src" content="/asset/img/facebook.png">
+    <meta name="image_src" content="/asset/img/open-group-chat-600x200.png">
     <meta name="application-name" content="Open Group Chat">
     <meta name="tweetmeme-title" content="Open Group Chat">
     <meta name="summary" content="Chat between PC's Openly - Nothing is logged anywhere. Ever.">
-    <meta name="url" content="http://open-group-chat.herokuapp.com/">
+    <meta name="url" content="http://ogc-chrisdlangton.rhcloud.com:8000/">
     <meta name="msapplication-tooltip" content="Chat between PC's Openly - Nothing is logged anywhere. Ever.">
-    <meta name="msapplication-starturl" content="http://open-group-chat.herokuapp.com/">
+    <meta name="msapplication-starturl" content="http://ogc-chrisdlangton.rhcloud.com:8000/">
     <meta name="msapplication-window" content="width=1024;height=768">
     <meta name="msapplication-navbutton-color" content="#D64">
-    <meta name="msapplication-TileImage" content="/asset/img/facebook.png">
+    <meta name="msapplication-TileImage" content="/asset/img/open-group-chat-600x200.png">
     <meta name="msapplication-TileColor" content="#D64">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Open Group Chat">
     <meta property="fb:app_id" content="codewiz.biz">
     <meta property="fb:admins" content="chrisdlangton">
-    <meta property="og:url" content="http://open-group-chat.herokuapp.com/">
-    <meta property="og:image" content="/asset/img/facebook.png">
+    <meta property="og:url" content="http://ogc-chrisdlangton.rhcloud.com:8000/">
+    <meta property="og:image" content="/asset/img/open-group-chat-600x200.png">
     <meta property="og:title" content="Chat between PC's Openly - Nothing is logged anywhere. Ever.">
     <meta property="og:description" content="Open Group Chat is a NodeJS project using the latest web technologies to provide fast open collaboration and privacy.">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:url" content="http://open-group-chat.herokuapp.com/">
+    <meta name="twitter:url" content="http://ogc-chrisdlangton.rhcloud.com:8000/">
     <meta name="twitter:creator" content="@chrisdlangton">
     <meta name="twitter:site" content="@codewiz_biz">
     <meta name="twitter:title" content="Open Group Chat">
     <meta name="twitter:description" content="Chat between PC's Openly - Nothing is logged anywhere. Ever.">
-    <meta name="twitter:image" content="/asset/img/facebook.png">
-    <link rel="canonical" href="http://open-group-chat.herokuapp.com/">
+    <meta name="twitter:image" content="/asset/img/open-group-chat-600x200.png">
+    <link rel="canonical" href="http://ogc-chrisdlangton.rhcloud.com:8000/">
     <link rel="icon" href="/asset/img/favicon.ico" sizes="16x16 32x32 48x48 64x64" type="image/vnd.microsoft.icon">
     <link rel="stylesheet" href="/asset/css/main.css">
     <link rel="stylesheet" href="/asset/css/bootstrap.min.css">
@@ -318,13 +318,15 @@
                     <div class="panel panel-danger">
                         <button type="button" class="btn btn-default pull-right" toggle-button="online" ><span toggle-icon class="glyphicon glyphicon-chevron-left"></span>&nbsp;<span toggle-text >Hide</span></button>
                         <div class="panel-heading">Online</div>
-                        <div ng-repeat="room in rooms">
-                            <div ng-repeat="(gid, user) in room.members | orderBy:'user.name'" ng-show="user.online" class="ng-hide">
-                                <img ng-src="{{user.image}}" class="img-circle">&nbsp;
-                                <span ng-bind="user.name" style="color:{{user.color}};"></span>&nbsp;
-                                <a href="#" ng-href="{{user.url}}" target="_blank" title="{{user.name}}'s Url" ng-show="user.url.length > 11" class="ng-hide"><span class="glyphicon glyphicon-new-window"></span></a>&nbsp;
-                                <span class="glyphicon glyphicon-bullhorn"></span>&nbsp;{{room.name}}&nbsp;
-                                <a href="#joinRoom" ng-click="joinRoom('{{room.id}}')" class="ng-hide" title="Join Room" ng-show="profile.room != room.id"><span class="glyphicon glyphicon-log-in"></span></button>
+                        <div id="online" >
+                            <div ng-repeat="room in rooms">
+                                <div ng-repeat="(gid, user) in room.members | orderBy:'user.name'" ng-show="user.online" class="ng-hide">
+                                    <img ng-src="{{user.image}}" class="img-circle">&nbsp;
+                                    <span ng-bind="user.name" style="color:{{user.color}};"></span>&nbsp;
+                                    <a href="#" ng-href="{{user.url}}" target="_blank" title="{{user.name}}'s Url" ng-show="user.url.length > 11" class="ng-hide"><span class="glyphicon glyphicon-new-window"></span></a>&nbsp;
+                                    <span class="glyphicon glyphicon-bullhorn"></span>&nbsp;{{room.name}}&nbsp;
+                                    <a href="#joinRoom" ng-click="joinRoom('{{room.id}}')" class="ng-hide" title="Join Room" ng-show="profile.room != room.id"><span class="glyphicon glyphicon-log-in"></span></a>
+                                </div>
                             </div>
                         </div>
                     </div>
