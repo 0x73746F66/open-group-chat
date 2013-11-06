@@ -3,7 +3,6 @@
 var http        = require('http'),
     fs          = require('fs'),
     path        = require('path'),
-    //async       = require('async'),
     socketio    = require('socket.io'),
     express     = require('express'),
     db          = require('./data/api'),
