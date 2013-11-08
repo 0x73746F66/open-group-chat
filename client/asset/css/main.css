@@ -97,6 +97,19 @@ body {
 .hide {
     display: none;
 }
+footer nav {
+    background-color: #000;
+    line-height: 2;
+}
+.font-s {
+    font-size: 12px;
+}
+.font-m {
+    font-size: 18px;
+}
+.font-l {
+    font-size: 24px;
+}
 
 /* Smartphones (portrait and landscape) ----------- */
 @media only screen 
