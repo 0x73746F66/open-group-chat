@@ -2,7 +2,7 @@ var app         = window.ogc;
 
 app.module.controller('LandingCtrl', function($scope) {
     var clientId = '504437119269.apps.googleusercontent.com';
-    var apiKey   = 'AIzaSyAa4jBJ9FXmBAPXTN8CdC934D4yyAuvr7w';
+    var apiKey   = '<add key here>';
     var scopes   = 'https://www.googleapis.com/auth/plus.me';
     $scope.auth  = false;
     $scope.gid   = null;
